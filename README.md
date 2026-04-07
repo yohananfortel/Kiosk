@@ -1,7 +1,5 @@
 # ocsnau-kiosk
 
-This template should help get you started developing with Vue 3 in Vite.
-
 ## Recommended IDE Setup
 
 [VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
@@ -36,6 +34,50 @@ npm run dev
 ```
 
 ### Type-Check, Compile and Minify for Production
+
+```sh
+npm run build
+```
+---
+
+# ocsnau-kiosk
+
+Цей шаблон має допомогти вам розпочати розробку з Vue 3 у Vite.
+
+## Рекомендоване налаштування IDE
+
+[VS Code](https://code.visualstudio.com/) + [Vue (Офіційний)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (і вимкніть Vetur).
+
+## Рекомендоване налаштування браузера
+
+- Браузери на базі Chromium (Chrome, Edge, Brave тощо):
+- [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
+- [Увімкнути форматування власних об'єктів у Chrome DevTools](http://bit.ly/object-formatters)
+- Firefox:
+- [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
+- [Увімкнути форматування власних об'єктів у Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+
+## Підтримка типів для імпорту `.vue` у TS
+
+TypeScript за замовчуванням не може обробляти інформацію про тип для імпорту `.vue`, тому ми замінюємо CLI `tsc` на `vue-tsc` для перевірки типів. У редакторах нам потрібен [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar), щоб служба мови TypeScript знала про типи `.vue`.
+
+## Налаштування конфігурації
+
+Див. [Довідник з конфігурації Vite](https://vite.dev/config/).
+
+## Налаштування проекту
+
+```sh
+npm install
+```
+
+### Компіляція та гаряче перезавантаження для розробки
+
+```sh
+npm run dev
+```
+
+### Перевірка типів, компіляція та мініфікація для продакшену
 
 ```sh
 npm run build
