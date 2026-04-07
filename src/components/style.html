@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="uk" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Інформаційний кіоск</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&amp;display=swap" rel="stylesheet">
+  <style>
+* { font-family: 'Nunito', sans-serif; margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; overflow: hidden; }
+
+.kiosk-wrap { height: 100%; width: 100%; overflow-y: auto; }
+.btn-tile { transition: transform 0.15s, box-shadow 0.15s; cursor: pointer; user-select: none; }
+.btn-tile:active { transform: scale(0.96); }
+.btn-tile:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+
+.page-enter { animation: slideIn 0.3s ease-out; }
+@keyframes slideIn { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+
+.back-btn { transition: background 0.15s; }
+.back-btn:hover { filter: brightness(0.9); }
+
+.list-item { border-left: 4px solid; padding: 14px 18px; margin-bottom: 10px; background: #fff; transition: background 0.15s; cursor: default; }
+.list-item:hover { background: #f0faf4; }
+</style>
+  <style>body { box-sizing: border-box; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full">
+  <div id="app" class="kiosk-wrap" style="background:#f4f5f7;">
+   <!-- MAIN SCREEN -->
+   <div id="screen-main" class="h-full flex flex-col">
+    <header id="header" class="text-white text-center py-10 px-6" style="background:#00a53f;">
+     <div class="flex items-center justify-center gap-3 mb-2">
+      <i data-lucide="graduation-cap" style="width:40px;height:40px;"></i>
+      <h1 id="el-college-name" class="text-3xl font-extrabold tracking-tight">Фаховий коледж</h1>
+     </div>
+     <p id="el-college-subtitle" class="text-lg opacity-90 font-semibold">Інформаційний кіоск</p>
+    </header>
+    <main class="flex-1 p-8 grid grid-cols-2 gap-6 mx-auto w-full" style="align-content:start; padding-top:40px;">
+     <div class="btn-tile rounded-2xl p-8 flex flex-col items-center justify-center gap-4 text-white text-center" style="background:#00a53f; min-height:180px;" onclick="showPage('abiturient')">
+      <i data-lucide="book-open" style="width:40px;height:40px;"></i> <span class="font-bold text-xl leading-tight">Абітурієнту</span>
+     </div>
+     <div class="btn-tile rounded-2xl p-8 flex flex-col items-center justify-center gap-4 text-white text-center" style="background:#008c35; min-height:180px;" onclick="showPage('student')">
+      <i data-lucide="user-check" style="width:40px;height:40px;"></i> <span class="font-bold text-xl leading-tight">Студенту</span>
+     </div>
+     <div class="btn-tile rounded-2xl p-8 flex flex-col items-center justify-center gap-4 text-white text-center" style="background:#00a53f; min-height:180px;" onclick="showPage('contacts')">
+      <i data-lucide="phone" style="width:40px;height:40px;"></i> <span class="font-bold text-xl leading-tight">Контакти</span>
+     </div>
+     <div class="btn-tile rounded-2xl p-8 flex flex-col items-center justify-center gap-4 text-white text-center" style="background:#008c35; min-height:180px;" onclick="showPage('dormitory')">
+      <i data-lucide="home" style="width:40px;height:40px;"></i> <span class="font-bold text-xl leading-tight">Гуртожиток</span>
+     </div>
+     <div class="col-span-2 btn-tile rounded-2xl p-8 flex flex-col items-center justify-center gap-4 text-center" style="background:#ffcc00; min-height:140px; color:#333;" onclick="showPage('shelter')">
+      <i data-lucide="shield" style="width:40px;height:40px;"></i> <span class="font-bold text-xl leading-tight">Укриття</span>
+     </div>
+    </main>
+    <footer class="text-center py-4 text-sm opacity-50">
+     © 2025
+    </footer>
+   </div><!-- SUB PAGES -->
+   <div id="screen-sub" class="h-full flex flex-col" style="display:none;">
+    <header class="flex items-center gap-3 px-4 py-4 text-white" style="background:#00a53f;">
+     <button class="back-btn rounded-xl p-2 flex items-center justify-center" style="background:rgba(255,255,255,0.2);" onclick="goBack()"> <i data-lucide="arrow-left" style="width:24px;height:24px;"></i> </button>
+     <h2 id="sub-title" class="text-xl font-bold"></h2>
+    </header>
+    <div id="sub-content" class="flex-1 overflow-y-auto p-6 page-enter"></div>
+    <footer class="text-center py-4 text-sm opacity-50">
+     <button onclick="goBack()" class="font-semibold" style="color:#00a53f;">← На головну</button>
+    </footer>
+   </div>
+  </div>
+  <script>
+const pages = {
+  abiturient: {
+    title: 'Абітурієнту',
+    content: `
+      <div style="max-width:520px;margin:0 auto;">
+        <h3 class="text-xl font-extrabold mb-4" style="color:#00a53f;">Вступна кампанія 2025</h3>
+        <div class="list-item rounded-xl" style="border-color:#00a53f;">
+          <p class="font-bold">📋 Перелік документів</p>
+          <p class="text-sm text-gray-500 mt-1">Паспорт, атестат, фото 3×4 — 6 шт., медична довідка 086-о</p>
+        </div>
+        <div class="list-item rounded-xl" style="border-color:#00a53f;">
+          <p class="font-bold">📅 Терміни подачі</p>
+          <p class="text-sm text-gray-500 mt-1">Прийом документів: 01.07 — 22.07.2025</p>
+        </div>
+        <div class="list-item rounded-xl" style="border-color:#00a53f;">
+          <p class="font-bold">🎓 Спеціальності</p>
+          <p class="text-sm text-gray-500 mt-1">Комп'ютерні науки, Економіка, Право, Дизайн</p>
+        </div>
+        <div class="list-item rounded-xl" style="border-color:#00a53f;">
+          <p class="font-bold">💰 Вартість навчання</p>
+          <p class="text-sm text-gray-500 mt-1">Бюджет / Контракт — від 18 000 грн/рік</p>
+        </div>
+      </div>`
+  },
+  student: {
+    title: 'Студенту',
+    content: `
+      <div style="max-width:520px;margin:0 auto;">
+        <h3 class="text-xl font-extrabold mb-4" style="color:#00a53f;">Корисна інформація</h3>
+        <div class="list-item rounded-xl" style="border-color:#008c35;">
+          <p class="font-bold">📚 Розклад занять</p>
+          <p class="text-sm text-gray-500 mt-1">Доступний на сайті та у додатку коледжу</p>
+        </div>
+        <div class="list-item rounded-xl" style="border-color:#008c35;">
+          <p class="font-bold">📖 Бібліотека</p>
+          <p class="text-sm text-gray-500 mt-1">Пн–Пт: 9:00–17:00, корпус А, каб. 112</p>
+        </div>
+        <div class="list-item rounded-xl" style="border-color:#008c35;">
+          <p class="font-bold">🏅 Стипендія</p>
+          <p class="text-sm text-gray-500 mt-1">Академічна — 1550 грн, Соціальна — 2100 грн</p>
+        </div>
+        <div class="list-item rounded-xl" style="border-color:#008c35;">
+          <p class="font-bold">🎭 Студентське життя</p>
+          <p class="text-sm text-gray-500 mt-1">Гуртки, секції, волонтерство, студрада</p>
+        </div>
+      </div>`
+  },
+  contacts: {
+    title: 'Контакти',
+    content: `
+      <div style="max-width:520px;margin:0 auto;">
+        <h3 class="text-xl font-extrabold mb-4" style="color:#00a53f;">Зв'яжіться з нами</h3>
+        <div class="list-item rounded-xl" style="border-color:#00a53f;">
+          <p class="font-bold">📍 Адреса</p>
+          <p class="text-sm text-gray-500 mt-1">вул. Навчальна, 10, м. Київ, 01001</p>
+        </div>
+        <div class="list-item rounded-xl" style="border-color:#00a53f;">
+          <p class="font-bold">📞 Приймальна комісія</p>
+          <p class="text-sm text-gray-500 mt-1">+380 (44) 123-45-67</p>
+        </div>
+        <div class="list-item rounded-xl" style="border-color:#00a53f;">
+          <p class="font-bold">📧 Email</p>
+          <p class="text-sm text-gray-500 mt-1">info@college.edu.ua</p>
+        </div>
+        <div class="list-item rounded-xl" style="border-color:#00a53f;">
+          <p class="font-bold">🕐 Графік роботи</p>
+          <p class="text-sm text-gray-500 mt-1">Пн–Пт: 8:00–17:00, Сб: 9:00–13:00</p>
+        </div>
+      </div>`
+  },
+  dormitory: {
+    title: 'Гуртожиток',
+    content: `
+      <div style="max-width:520px;margin:0 auto;">
+        <h3 class="text-xl font-extrabold mb-4" style="color:#00a53f;">Проживання</h3>
+        <div class="list-item rounded-xl" style="border-color:#008c35;">
+          <p class="font-bold">🏠 Адреса гуртожитку</p>
+          <p class="text-sm text-gray-500 mt-1">вул. Студентська, 5, корпус Б</p>
+        </div>
+        <div class="list-item rounded-xl" style="border-color:#008c35;">
+          <p class="font-bold">💵 Вартість</p>
+          <p class="text-sm text-gray-500 mt-1">600 грн/місяць</p>
+        </div>
+        <div class="list-item rounded-xl" style="border-color:#008c35;">
+          <p class="font-bold">📋 Для заселення</p>
+          <p class="text-sm text-gray-500 mt-1">Паспорт, довідка 086-о, 2 фото 3×4, квитанція про оплату</p>
+        </div>
+        <div class="list-item rounded-xl" style="border-color:#008c35;">
+          <p class="font-bold">📞 Комендант</p>
+          <p class="text-sm text-gray-500 mt-1">+380 (44) 765-43-21</p>
+        </div>
+      </div>`
+  },
+  shelter: {
+    title: 'Укриття',
+    content: `
+      <div style="max-width:520px;margin:0 auto;">
+        <div class="rounded-2xl p-5 mb-5 text-center" style="background:#ffcc00; color:#333;">
+          <p class="font-extrabold text-lg">⚠️ При сигналі тривоги негайно прямуйте до укриття!</p>
+        </div>
+        <h3 class="text-xl font-extrabold mb-4" style="color:#00a53f;">Місця укриття</h3>
+        <div class="list-item rounded-xl" style="border-color:#e6b800; border-width:3px;">
+          <p class="font-bold">🏛 Корпус А — підвал</p>
+          <p class="text-sm text-gray-500 mt-1">Вхід через центральні сходи, поверх -1. Місткість: 200 осіб</p>
+        </div>
+        <div class="list-item rounded-xl" style="border-color:#e6b800; border-width:3px;">
+          <p class="font-bold">🏛 Корпус Б — підвал</p>
+          <p class="text-sm text-gray-500 mt-1">Вхід з правого крила. Місткість: 150 осіб</p>
+        </div>
+        <div class="list-item rounded-xl" style="border-color:#e6b800; border-width:3px;">
+          <p class="font-bold">🏠 Гуртожиток — підвал</p>
+          <p class="text-sm text-gray-500 mt-1">Вхід через запасний вихід. Місткість: 100 осіб</p>
+        </div>
+        <div class="rounded-2xl p-4 mt-4 text-sm" style="background:#fff3cd; color:#856404;">
+          <p class="font-semibold">📌 Правила поведінки:</p>
+          <p class="mt-1">Зберігайте спокій • Слідуйте вказівкам персоналу • Не використовуйте ліфти</p>
+        </div>
+      </div>`
+  }
+};
+
+function showPage(key) {
+  const page = pages[key];
+  if (!page) return;
+  document.getElementById('screen-main').style.display = 'none';
+  document.getElementById('screen-sub').style.display = 'flex';
+  document.getElementById('sub-title').textContent = page.title;
+  const content = document.getElementById('sub-content');
+  content.innerHTML = page.content;
+  content.className = 'flex-1 overflow-y-auto p-6 page-enter';
+  lucide.createIcons();
+}
+
+function goBack() {
+  document.getElementById('screen-sub').style.display = 'none';
+  document.getElementById('screen-main').style.display = 'flex';
+}
+
+// Element SDK
+const defaultConfig = {
+  college_name: 'Фаховий коледж',
+  college_subtitle: 'Інформаційний кіоск',
+  background_color: '#f4f5f7',
+  primary_color: '#00a53f',
+  primary_dark: '#008c35',
+  text_color: '#333333',
+  accent_color: '#ffcc00',
+  font_family: 'Nunito',
+  font_size: 16
+};
+
+function applyConfig(config) {
+  const bg = config.background_color || defaultConfig.background_color;
+  const primary = config.primary_color || defaultConfig.primary_color;
+  const dark = config.primary_dark || defaultConfig.primary_dark;
+  const txt = config.text_color || defaultConfig.text_color;
+  const accent = config.accent_color || defaultConfig.accent_color;
+  const font = config.font_family || defaultConfig.font_family;
+  const sz = config.font_size || defaultConfig.font_size;
+
+  document.getElementById('app').style.background = bg;
+  document.getElementById('app').style.fontFamily = `${font}, sans-serif`;
+  document.getElementById('app').style.fontSize = sz + 'px';
+  document.getElementById('app').style.color = txt;
+
+  // Header
+  const headers = document.querySelectorAll('header');
+  headers.forEach(h => { if(h.closest('#screen-main') || h.closest('#screen-sub')) h.style.background = primary; });
+
+  // College name & subtitle
+  document.getElementById('el-college-name').textContent = config.college_name || defaultConfig.college_name;
+  document.getElementById('el-college-subtitle').textContent = config.college_subtitle || defaultConfig.college_subtitle;
+
+  // Tiles
+  const tiles = document.querySelectorAll('#screen-main .btn-tile');
+  if (tiles[0]) tiles[0].style.background = primary;
+  if (tiles[1]) tiles[1].style.background = dark;
+  if (tiles[2]) tiles[2].style.background = primary;
+  if (tiles[3]) tiles[3].style.background = dark;
+  if (tiles[4]) tiles[4].style.background = accent;
+
+  // Back link
+  const backLink = document.querySelector('#screen-sub footer button');
+  if (backLink) backLink.style.color = primary;
+}
+
+window.elementSdk.init({
+  defaultConfig,
+  onConfigChange: async (config) => applyConfig(config),
+  mapToCapabilities: (config) => ({
+    recolorables: [
+      { get: () => config.background_color || defaultConfig.background_color, set: v => { config.background_color = v; window.elementSdk.setConfig({ background_color: v }); } },
+      { get: () => config.primary_color || defaultConfig.primary_color, set: v => { config.primary_color = v; window.elementSdk.setConfig({ primary_color: v }); } },
+      { get: () => config.primary_dark || defaultConfig.primary_dark, set: v => { config.primary_dark = v; window.elementSdk.setConfig({ primary_dark: v }); } },
+      { get: () => config.text_color || defaultConfig.text_color, set: v => { config.text_color = v; window.elementSdk.setConfig({ text_color: v }); } },
+      { get: () => config.accent_color || defaultConfig.accent_color, set: v => { config.accent_color = v; window.elementSdk.setConfig({ accent_color: v }); } }
+    ],
+    borderables: [],
+    fontEditable: { get: () => config.font_family || defaultConfig.font_family, set: v => { config.font_family = v; window.elementSdk.setConfig({ font_family: v }); } },
+    fontSizeable: { get: () => config.font_size || defaultConfig.font_size, set: v => { config.font_size = v; window.elementSdk.setConfig({ font_size: v }); } }
+  }),
+  mapToEditPanelValues: (config) => new Map([
+    ['college_name', config.college_name || defaultConfig.college_name],
+    ['college_subtitle', config.college_subtitle || defaultConfig.college_subtitle]
+  ])
+});
+
+lucide.createIcons();
+</script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9e8101331640ca52',t:'MTc3NTQ4MDczMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
