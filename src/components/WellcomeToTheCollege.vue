@@ -41,6 +41,7 @@
 import { ref, shallowRef } from 'vue';
 import Abiturientu from './Abiturientu.vue';
 import Studentu from './Studentu.vue'
+import Shelter from './Shelter.vue';
 
 const isModalOpen = ref(false);
 const activeComponent = shallowRef(null);
@@ -50,7 +51,7 @@ const menuItems = ref([
   { id: 2, title: 'Студенту',  image: 'img/student.png', color: '#00a53f', link: '/student', component: Studentu},
   { id: 3, title: 'Контакти', image: 'img/telephone-call.png', color: '#00a53f', link: '/contacts' },
   { id: 4, title: 'Гуртожиток', image: 'img/hostel.png', color: '#00a53f', link: '/dormitory' },
-  { id: 5, title: 'Укриття', image: 'img/location.png', color: '#00a53f', link: '/shelter' },
+  { id: 5, title: 'Укриття', image: 'img/location.png', color: '#00a53f', link: '/shelter', component: Shelter },
 ]);
 
 const handleNavigate = (link) => {
