@@ -39,6 +39,7 @@
 import { ref, shallowRef } from 'vue';
 
 import BuildSchema from './BuildSchema.vue'
+import Schedule from './Shedule.vue'
 
 // Стан модального вікна
 const isModalOpen = ref(false);
@@ -47,7 +48,7 @@ const currentTitle = ref('');
 
 const menuItemsAbit = ref([
   { id: 1, title: "Карта аудиторій", color: '#00a53f', component: BuildSchema, image: 'img/route.png' },
-  { id: 2, title: "Розклад занять"}
+  { id: 2, title: "Розклад занять", color: '#007bff', component: Schedule, image: 'img/schedule.png' }
 ]);
 
 const openModal = (item) => {

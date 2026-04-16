@@ -3,11 +3,24 @@
     <div class="sidebar">
       <h3>Інформація</h3>
       <p v-if="selectedRoom">Вибрано аудиторію: <strong>{{ selectedRoom }}</strong></p>
+
       <p v-else>Клікніть на аудиторію</p>
 
       <hr />
+      <div v-if="roomInfo">
+        <h4>{{ roomInfo.name }}</h4>
+        <p>{{ roomInfo.description }}</p>
 
-     
+        <div v-if="roomInfo.images && roomInfo.images.length" class="room-gallery">
+          <img 
+            v-for="(img, index) in roomInfo.images" 
+            :key="index" 
+            :src="img" 
+            class="room-image"
+            alt="Фото аудиторії"
+          />
+      </div>
+     </div>
     </div>
 
     <div class="svg-wrapper">
@@ -39,6 +52,7 @@
     <rect
        style="fill:#ffcc00;stroke-width:0.264583"
        id="room-rect3"
+       value="audience10"
        width="42.643826"
        height="12.913271"
        x="21.922531"
@@ -47,6 +61,7 @@
     <rect
        style="fill:#ffcc00;stroke-width:0.264583"
        id="room-rect4"
+       value="audience11"
        width="18.619135"
        height="29.129936"
        x="169.07378"
@@ -61,6 +76,7 @@
     <rect
        style="fill:#ffcc00;stroke-width:0.264583"
        id="room-rect1"
+       value="audience10"
        width="17.4179"
        height="31.532406"
        x="23.123766"
@@ -191,6 +207,7 @@
 <rect
        style="fill:#ffcc00;stroke-width:0.264583"
        id="room-rect16"
+        value="audience5"
        width="15.315741"
        height="29.730553"
        x="22.823458"
@@ -198,6 +215,7 @@
     <rect
        style="fill:#ffcc00;stroke-width:0.264583"
        id="room-rect17"
+       value="audience4"
        width="16.817284"
        height="24.925617"
        x="22.222839"
@@ -205,6 +223,7 @@
     <rect
        style="fill:#ffcc00;stroke-width:0.264583"
        id="room-rect18"
+       value="audience7"
        width="38.739815"
        height="15.61605"
        x="91.594131"
@@ -212,6 +231,7 @@
     <rect
        style="fill:#ffcc00;stroke-width:0.264583"
        id="room-rect19"
+       value="audience10"
        width="12.012346"
        height="30.631481"
        x="174.77962"
@@ -221,11 +241,13 @@
        id="room-rect20"
        width="12.012346"
        height="22.523148"
+       value="audience9"
        x="175.38025"
        y="55.857407" />
     <rect
        style="fill:#ffcc00;stroke-width:0.264583"
        id="room-rect21"
+       value="audience3"
        width="34.8358"
        height="15.916358"
        x="20.721296"
@@ -233,6 +255,7 @@
     <rect
        style="fill:#ffcc00;stroke-width:0.264583"
        id="room-rect22"
+       value="audience8"
        width="69.971916"
        height="14.715123"
        x="61.863579"
@@ -240,6 +263,7 @@
     <rect
        style="fill:#ffcc00;stroke-width:0.264583"
        id="room-rect23"
+       value="audience6"
        width="45.346607"
        height="16.216667"
        x="141.14507"
@@ -254,6 +278,7 @@
        inkscape:label="Aud3"><tspan
          sodipodi:role="line"
          id="room-tspan1"
+         value="audience3"
          style="fill:#24221c;stroke-width:0.264583"
          x="24.367435"
          y="106.19537">Аудиторія №3</tspan></text>
@@ -269,6 +294,7 @@
        inkscape:label="aud4"><tspan
          sodipodi:role="line"
          id="room-tspan2"
+         value="audience4"
          style="stroke-width:0.264583"
          x="-85.757759"
          y="31.125608">Аудиторія №4</tspan></text>
@@ -284,6 +310,7 @@
        inkscape:label="aud4"><tspan
          sodipodi:role="line"
          id="room-tspan5"
+         value="audience5"
          style="stroke-width:0.264583"
          x="-51.500965"
          y="31.000624">Аудиторія №5</tspan></text>
@@ -295,6 +322,7 @@
        id="room-text6"><tspan
          sodipodi:role="line"
          id="room-tspan6"
+         value="audience8"
          style="stroke-width:0.264583"
          x="83.241341"
          y="106.00895">Аудиторія №8</tspan></text>
@@ -306,6 +334,7 @@
        id="room-text7"><tspan
          sodipodi:role="line"
          id="room-tspan7"
+         value="audience7"
          style="stroke-width:0.264583"
          x="97.241966"
          y="77.179314">Аудиторія №7</tspan></text>
@@ -314,9 +343,11 @@
        style="font-weight:bold;font-size:4.23333px;font-family:Roboto;-inkscape-font-specification:'Roboto Bold';writing-mode:lr-tb;direction:ltr;fill:#24221c;stroke-width:0.264583"
        x="151.29752"
        y="106.60956"
-       id="room-text8"><tspan
+       id="room-text8"
+       values="audience8"><tspan
          sodipodi:role="line"
          id="room-tspan8"
+         value="audience6"
          style="stroke-width:0.264583"
          x="151.29752"
          y="106.60956">Аудиторія №6</tspan></text>
@@ -332,6 +363,7 @@
        inkscape:label="aud4"><tspan
          sodipodi:role="line"
          id="room-tspan9"
+         value="audience9"
          style="stroke-width:0.264583"
          x="-90.11837"
          y="179.75806">Аудиторія №9</tspan></text>
@@ -347,6 +379,7 @@
        inkscape:label="aud4"><tspan
          sodipodi:role="line"
          id="room-tspan10"
+         value ="audience10"
          style="stroke-width:0.264583"
          x="-55.862648"
          y="179.6331">Аудиторія №10</tspan></text>
@@ -371,6 +404,7 @@
               <rect
                   style="fill:#ffcc00;stroke-width:0.264583"
                   id="room-room-222"
+                  value = "audience2"
                   width="38.627182"
                   height="17.077282"
                   x="23.17631"
@@ -379,6 +413,7 @@
                 <rect
                   style="fill:#ffcc00;stroke-width:0.264583"
                   id="room-room-22"
+                  value="audience1"
                   width="23.17631"
                   height="39.033787"
                   x="20.7367"
@@ -423,6 +458,7 @@
                     inkscape:label="aud2"><tspan
                       x="108.3125"
                       y="387.25977"
+                      value="audience2"
                       id="room-tspan1">Аудиторія №2</tspan></text>
                       <text
        xml:space="preserve"
@@ -436,6 +472,7 @@
        inkscape:label="aud4"><tspan
          sodipodi:role="line"
          id="room-tspan5"
+         value="audience1"
          style="stroke-width:0.264583"
          x="-71.500965"
          y="31.000624">Аудиторія №1</tspan></text>
@@ -466,6 +503,31 @@
 import { ref, computed } from 'vue'
 
 const selectedRoom = ref(null)
+const roomInfo = ref(null)
+
+const classrooms = ref({
+  "audience1": {"name": "Аудиторія №1", "description": "Це аудиторія №1, розташована на першому поверсі. Вона оснащена сучасним обладнанням для проведення лекцій та семінарів.", "images":["img/auditiry/1/1.jpg" , "img/auditiry/1/2.jpg"] },
+  "audience2": {"name": "Аудиторія №2", "description": "Це аудиторія №2, розташована на першому поверсі. Вона оснащена сучасним обладнанням для проведення лекцій та семінарів.","images":["img/auditiry/2/1.jpg" , "img/auditiry/2/2.jpg"]},
+  "audience3": {"name": "Аудиторія №3", "description": "Це аудиторія №3, розташована на першому поверсі. Вона оснащена сучасним обладнанням для проведення лекцій та семінарів.", "images":["img/auditiry/3/1.jpg" , "img/auditiry/3/2.jpg"]},
+  "audience4": {"name": "Аудиторія №4", "description": "Це аудиторія №4, розташована на першому поверсі. Вона оснащена сучасним обладнанням для проведення лекцій та семінарів.", "images":["img/auditiry/4/1.jpg" , "img/auditiry/4/2.jpg"]},
+  "audience5": {"name": "Аудиторія №5", "description": "Це аудиторія №5, розташована на першому поверсі. Вона оснащена сучасним обладнанням для проведення лекцій та семінарів.", "images":["img/auditiry/5/1.jpg" , "img/auditiry/5/2.jpg"]},
+  "audience6": {"name": "Аудиторія №6", "description": "Це аудиторія №6, розташована на першому поверсі. Вона оснащена сучасним обладнанням для проведення лекцій та семінарів.", "images":["img/auditiry/6/1.jpg" , "img/auditiry/6/2.jpg"]},
+  "audience7": {"name": "Аудиторія №7", "description": "Це аудиторія №7, розташована на першому поверсі. Вона оснащена сучасним обладнанням для проведення лекцій та семінарів.", "images":["img/auditiry/7/1.jpg" , "img/auditiry/7/2.jpg"]},
+  "audience8": {"name": "Аудиторія №8", "description": "Це аудиторія №8, розташована на першому поверсі. Вона оснащена сучасним обладнанням для проведення лекцій та семінарів.", "images":["img/auditiry/8/1.jpg" , "img/auditiry/8/2.jpg"]},
+  "audience9": {"name": "Аудиторія №9", "description": "Це аудиторія №9, розташована на першому поверсі. Вона оснащена сучасним обладнанням для проведення лекцій та семінарів.", "images":["img/auditiry/9/1.jpg" , "img/auditiry/9/2.jpg"]},
+  "audience10": {"name": "Аудиторія №10", "description": "Це аудиторія №10, розташована на першому поверсі. Вона оснащена сучасним обладнанням для проведення лекцій та семінарів.", "images":["img/auditiry/10/1.jpg" , "img/auditiry/10/2.jpg"]},
+
+  "audience11": {"name": "Аудиторія №11", "description": "Це аудиторія №11, розташована на першому поверсі. Вона оснащена сучасним обладнанням для проведення лекцій та семінарів.", "images":["img/auditiry/11/1.jpg" , "img/auditiry/11/2.jpg"]},
+  "audience11a": {"name": "Аудиторія №11a", "description": "Це аудиторія №11a, розташована на першому поверсі. Вона оснащена сучасним обладнанням для проведення лекцій та семінарів.", "images":["img/auditiry/11a/1.jpg" , "img/auditiry/11a/2.jpg"]},
+
+  "audience12": {"name": "Аудиторія №12", "description": "Це аудиторія №12, розташована на першому поверсі. Вона оснащена сучасним обладнанням для проведення лекцій та семінарів.", "images":["img/auditiry/12/1.jpg" , "img/auditiry/12/2.jpg"]},
+
+
+
+
+
+}
+)
 
 // 1. Реактивний об'єкт з налаштуваннями ізометрії
 const isoConfig = ref({
@@ -485,10 +547,21 @@ const handleRoomClick = (event) => {
   const target = event.target
   
   if (target && target.id && target.id.startsWith('room-')) {
-    selectedRoom.value = target.id.replace('room-', '')
+    selectedRoom.value = target.value || target.getAttribute('value') || target.id
     
-    document.querySelectorAll('.is-active').forEach(el => el.classList.remove('is-active'))
-    target.classList.add('is-active')
+
+    let classroomData = classrooms.value[selectedRoom.value]
+
+    if (classroomData) {
+      // Зберігаємо весь об'єкт (в якому є і description, і images)
+      roomInfo.value = classroomData;
+    } else {
+      roomInfo.value = { 
+        name: "Невідома аудиторія", 
+        description: "Інформацію не знайдено", 
+        images: [] 
+      };
+    }    
   }
 }
 </script>
@@ -502,8 +575,8 @@ const handleRoomClick = (event) => {
 }
 
 .sidebar {
-  width: 300px; /* Трохи розширив для повзунків */
-  padding: 20px;
+  width: 40%; /* Трохи розширив для повзунків */
+  padding: 10px;
   background: white;
   border-right: 1px solid #ddd;
   overflow-y: auto;
@@ -575,5 +648,12 @@ hr {
   fill: #f59e0b;
   stroke: #b45309;
   stroke-width: 4;
+}
+
+.room-gallery img {
+  width: 100%;
+  height: auto;
+  margin-top: 20px;
+  border-radius: 7px;
 }
 </style>
