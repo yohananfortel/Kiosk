@@ -48,7 +48,7 @@ const activeComponent = shallowRef(null);
 const menuItems = ref([
   {
     id: 1,
-    title: "Аурієнту",
+    title: "Абітурієнту",
     image: "img/abiturient.png",
     color: "#00a53f",
     link: "/admission",
