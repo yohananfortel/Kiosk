@@ -33,7 +33,7 @@
           <!-- ПОВЕРХ 3 -->
           <!-- ========================================== -->
           <g transform="translate(0, 0)" class="floor-group">
-            <text x="-150" y="50" class="floor-title">ІІІ поверх</text>
+            <text x="-50" y="50" class="floor-title">ІІІ поверх</text>
             
             <g :transform="isometricTransform" @click="handleRoomClick" class="floor-plan">
               <path 
@@ -44,7 +44,8 @@
 
               <rect
        style="fill:#ffcc00;stroke-width:0.264583"
-       id="room-rect2"
+       id="room-11a"
+       value = "audience11a"
        width="16.817284"
        height="24.024693"
        x="23.123766"
@@ -52,7 +53,7 @@
     <rect
        style="fill:#ffcc00;stroke-width:0.264583"
        id="room-rect3"
-       value="audience10"
+       value="audience11a"
        width="42.643826"
        height="12.913271"
        x="21.922531"
@@ -61,7 +62,7 @@
     <rect
        style="fill:#ffcc00;stroke-width:0.264583"
        id="room-rect4"
-       value="audience11"
+       value="audience15"
        width="18.619135"
        height="29.129936"
        x="169.07378"
@@ -69,6 +70,7 @@
     <rect
        style="fill:#ffcc00;stroke-width:0.264583"
        id="room-rect5"
+       value="audience14"
        width="16.516975"
        height="22.523148"
        x="171.47624"
@@ -76,7 +78,7 @@
     <rect
        style="fill:#ffcc00;stroke-width:0.264583"
        id="room-rect1"
-       value="audience10"
+       value="audience11"
        width="17.4179"
        height="31.532406"
        x="23.123766"
@@ -84,6 +86,7 @@
     <rect
        style="fill:#ffcc00;stroke-width:0.264583"
        id="room-rect7"
+       value="act"
        width="66.067894"
        height="32.433334"
        x="71.473457"
@@ -92,6 +95,7 @@
     <rect
        style="fill:#ffcc00;stroke-width:0.264583"
        id="room-rect6"
+       value="audience12"
        width="45.346607"
        height="14.715123"
        x="143.84784"
@@ -106,6 +110,7 @@
        transform="rotate(-90.715607)"><tspan
          sodipodi:role="line"
          id="room-tspan11"
+         value="audience11"
          style="stroke-width:0.264583"
          x="-53.124767"
          y="32.546249">Аудиторія №11</tspan></text>
@@ -114,6 +119,7 @@
        id="room-rect6"
        width="45.346607"
        height="14.715123"
+       value="audience13"
        x="143.84784"
        y="96.999687" />
     <text
@@ -122,20 +128,24 @@
        x="-85.930687"
        y="32.136612"
        id="room-text16"
+       value = "audience11a"
        transform="rotate(-90.715607)"><tspan
          sodipodi:role="line"
          id="room-tspan13"
+         value = "audience11a"
          style="stroke-width:0.264583"
          x="-85.930687"
-         y="32.136612">Аудиторія №11</tspan></text>
+         y="32.136612">Аудиторія №11a</tspan></text>
     <text
        xml:space="preserve"
        style="font-weight:bold;font-size:4.23333px;font-family:Roboto;-inkscape-font-specification:'Roboto Bold';writing-mode:lr-tb;direction:ltr;fill:#24221c;stroke-width:0.264583"
        x="27.385025"
        y="106.33826"
+       value="audience12"
        id="room-text17"><tspan
          sodipodi:role="line"
          id="room-tspan16"
+         value="audience12"
          style="stroke-width:0.264583"
          x="27.385025"
          y="106.33826">Аудиторія №12</tspan></text>
@@ -148,6 +158,7 @@
        transform="rotate(-90.715607)"><tspan
          sodipodi:role="line"
          id="room-tspan17"
+         value="audience15"
          style="stroke-width:0.264583"
          x="-55.885952"
          y="181.47647">Аудиторія №11</tspan></text>
@@ -160,6 +171,7 @@
        transform="rotate(-90.715607)"><tspan
          sodipodi:role="line"
          id="room-tspan18"
+         value="audience14"
          style="stroke-width:0.264583"
          x="-87.104362"
          y="180.18555">Аудиторія №11</tspan></text>
@@ -171,6 +183,7 @@
        id="room-text20"><tspan
          sodipodi:role="line"
          id="room-tspan19"
+         value="audience13"
          style="stroke-width:0.264583"
          x="151.11218"
          y="105.73764">Аудиторія №13</tspan></text>
@@ -194,7 +207,7 @@
           <!-- ========================================== -->
           <!-- Зміщення розраховується динамічно на основі floorGap -->
           <g :transform="`translate(0, ${isoConfig.floorGap})`" class="floor-group">
-            <text x="-150" y="50" class="floor-title">ІІ поверх</text>
+            <text x="-50" y="50" class="floor-title">ІІ поверх</text>
             
             <g :transform="isometricTransform" @click="handleRoomClick" class="floor-plan">
               <path
@@ -392,7 +405,7 @@
           <!-- ПОВЕРХ 1 -->
           <!-- ========================================== -->
           <g :transform="`translate(0, ${isoConfig.floorGap * 2})`" class="floor-group">
-            <text x="-150" y="50" class="floor-title">І поверх</text>
+            <text x="-50" y="50" class="floor-title">І поверх</text>
             
             <g :transform="isometricTransform" @click="handleRoomClick" class="floor-plan">
               <path 
@@ -506,24 +519,28 @@ const selectedRoom = ref(null)
 const roomInfo = ref(null)
 
 const classrooms = ref({
-  "audience1": {"name": "Аудиторія №1", "description": "Це аудиторія №1, розташована на першому поверсі. Вона оснащена сучасним обладнанням для проведення лекцій та семінарів.", "images":["img/auditiry/1/1.jpg" , "img/auditiry/1/2.jpg"] },
-  "audience2": {"name": "Аудиторія №2", "description": "Це аудиторія №2, розташована на першому поверсі. Вона оснащена сучасним обладнанням для проведення лекцій та семінарів.","images":["img/auditiry/2/1.jpg" , "img/auditiry/2/2.jpg"]},
-  "audience3": {"name": "Аудиторія №3", "description": "Це аудиторія №3, розташована на першому поверсі. Вона оснащена сучасним обладнанням для проведення лекцій та семінарів.", "images":["img/auditiry/3/1.jpg" , "img/auditiry/3/2.jpg"]},
-  "audience4": {"name": "Аудиторія №4", "description": "Це аудиторія №4, розташована на першому поверсі. Вона оснащена сучасним обладнанням для проведення лекцій та семінарів.", "images":["img/auditiry/4/1.jpg" , "img/auditiry/4/2.jpg"]},
-  "audience5": {"name": "Аудиторія №5", "description": "Це аудиторія №5, розташована на першому поверсі. Вона оснащена сучасним обладнанням для проведення лекцій та семінарів.", "images":["img/auditiry/5/1.jpg" , "img/auditiry/5/2.jpg"]},
-  "audience6": {"name": "Аудиторія №6", "description": "Це аудиторія №6, розташована на першому поверсі. Вона оснащена сучасним обладнанням для проведення лекцій та семінарів.", "images":["img/auditiry/6/1.jpg" , "img/auditiry/6/2.jpg"]},
-  "audience7": {"name": "Аудиторія №7", "description": "Це аудиторія №7, розташована на першому поверсі. Вона оснащена сучасним обладнанням для проведення лекцій та семінарів.", "images":["img/auditiry/7/1.jpg" , "img/auditiry/7/2.jpg"]},
-  "audience8": {"name": "Аудиторія №8", "description": "Це аудиторія №8, розташована на першому поверсі. Вона оснащена сучасним обладнанням для проведення лекцій та семінарів.", "images":["img/auditiry/8/1.jpg" , "img/auditiry/8/2.jpg"]},
-  "audience9": {"name": "Аудиторія №9", "description": "Це аудиторія №9, розташована на першому поверсі. Вона оснащена сучасним обладнанням для проведення лекцій та семінарів.", "images":["img/auditiry/9/1.jpg" , "img/auditiry/9/2.jpg"]},
-  "audience10": {"name": "Аудиторія №10", "description": "Це аудиторія №10, розташована на першому поверсі. Вона оснащена сучасним обладнанням для проведення лекцій та семінарів.", "images":["img/auditiry/10/1.jpg" , "img/auditiry/10/2.jpg"]},
+  "audience1": {"name": "Аудиторія №1", "description": "", "images":["img/auditiry/1/1.jpg" , "img/auditiry/1/2.jpg"] },
+  "audience2": {"name": "Аудиторія №2", "description": "","images":["img/auditiry/2/1.jpg" , "img/auditiry/2/2.jpg"]},
+  "audience3": {"name": "Аудиторія №3", "description": "", "images":["img/auditiry/3/1.jpg" , "img/auditiry/3/2.jpg"]},
+  "audience4": {"name": "Аудиторія №4", "description": "", "images":["img/auditiry/4/1.jpg" , "img/auditiry/4/2.jpg"]},
+  "audience5": {"name": "Аудиторія №5", "description": "", "images":["img/auditiry/5/1.jpg" , "img/auditiry/5/2.jpg"]},
+  "audience6": {"name": "Аудиторія №6", "description": "", "images":["img/auditiry/6/1.jpg" , "img/auditiry/6/2.jpg"]},
+  "audience7": {"name": "Аудиторія №7", "description": "", "images":["img/auditiry/7/1.jpg" , "img/auditiry/7/2.jpg"]},
+  "audience8": {"name": "Аудиторія №8", "description": "", "images":["img/auditiry/8/1.jpg" , "img/auditiry/8/2.jpg"]},
+  "audience9": {"name": "Аудиторія №9", "description": "", "images":["img/auditiry/9/1.jpg" , "img/auditiry/9/2.jpg"]},
+  "audience10": {"name": "Аудиторія №10", "description": "", "images":["img/auditiry/10/1.jpg" , "img/auditiry/10/2.jpg"]},
 
-  "audience11": {"name": "Аудиторія №11", "description": "Це аудиторія №11, розташована на першому поверсі. Вона оснащена сучасним обладнанням для проведення лекцій та семінарів.", "images":["img/auditiry/11/1.jpg" , "img/auditiry/11/2.jpg"]},
-  "audience11a": {"name": "Аудиторія №11a", "description": "Це аудиторія №11a, розташована на першому поверсі. Вона оснащена сучасним обладнанням для проведення лекцій та семінарів.", "images":["img/auditiry/11a/1.jpg" , "img/auditiry/11a/2.jpg"]},
+  "audience11": {"name": "Аудиторія №11", "description": "", "images":["img/auditiry/11/1.jpg" , "img/auditiry/11/2.jpg"]},
+  "audience11a": {"name": "Аудиторія №11a", "description": "", "images":["img/auditiry/11a/1.jpg" , "img/auditiry/11a/2.jpg"]},
 
-  "audience12": {"name": "Аудиторія №12", "description": "Це аудиторія №12, розташована на першому поверсі. Вона оснащена сучасним обладнанням для проведення лекцій та семінарів.", "images":["img/auditiry/12/1.jpg" , "img/auditiry/12/2.jpg"]},
+  "audience12": {"name": "Аудиторія №12", "description": "", "images":["img/auditiry/12/1.jpg" , "img/auditiry/12/2.jpg"]},
 
+  "audience13": {"name": "Аудиторія №13", "description": "", "images":["img/auditiry/16/1.jpg" , "img/auditiry/16/2.jpg"]},
+  "audience14": {"name": "Аудиторія №12", "description": "", "images":["img/auditiry/13/1.jpg" , "img/auditiry/13/2.jpg"]},
 
+   "audience15": {"name": "Аудиторія №15", "description": "", "images":["img/auditiry/14/1.jpg" , "img/auditiry/14/2.jpg"]},
 
+  "act": {"name": "Актова зала", "description": "", "images":["img/auditiry/act/1.jpg" , "img/auditiry/act/2.jpg"]},
 
 
 }
@@ -580,6 +597,7 @@ const handleRoomClick = (event) => {
   background: white;
   border-right: 1px solid #ddd;
   overflow-y: auto;
+  padding-right: 60px;
 }
 
 /* Стилі для панелі керування */

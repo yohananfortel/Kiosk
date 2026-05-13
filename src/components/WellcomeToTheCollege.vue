@@ -43,6 +43,7 @@ import Abiturientu from './Abiturientu.vue';
 import Studentu from './Studentu.vue'
 import Shelter from './Shelter.vue';
 import Contacts from './Contacts.vue';
+import Dormitory from './Dormitory.vue';
 
 const isModalOpen = ref(false);
 const activeComponent = shallowRef(null);
@@ -51,7 +52,7 @@ const menuItems = ref([
   { id: 1, title: 'Абітурієнту', image: 'img/abiturient.png', color: '#00a53f', link: '/admission', component: Abiturientu },
   { id: 2, title: 'Студенту',  image: 'img/student.png', color: '#00a53f', link: '/student', component: Studentu},
   { id: 3, title: 'Контакти', image: 'img/telephone-call.png', color: '#00a53f', link: '/contacts', component: Contacts },
-  { id: 4, title: 'Гуртожиток', image: 'img/hostel.png', color: '#00a53f', link: '/dormitory' },
+  { id: 4, title: 'Гуртожиток', image: 'img/hostel.png', color: '#00a53f', link: '/dormitory', component: Dormitory },
   { id: 5, title: 'Укриття', image: 'img/location.png', color: '#00a53f', link: '/shelter', component: Shelter },
 ]);
 
