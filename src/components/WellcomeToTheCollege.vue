@@ -86,6 +86,12 @@ const menuItems = ref([
     link: "/shelter",
     component: Shelter,
   },
+  {
+    id: 6,
+    title: "Новини",
+    image: "img/location.png",
+    color: "#00a53f", 
+  },
 ]);
 
 const handleNavigate = (link) => {
