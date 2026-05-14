@@ -89,8 +89,8 @@ const menuItems = ref([
   {
     id: 6,
     title: "Новини",
-    image: "img/location.png",
-    color: "#00a53f", 
+    image: "img/news.png",
+    color: "#00a53f",
   },
 ]);
 
