@@ -7,14 +7,14 @@
             <div class="contacts__email-label">Email</div>
             <div class="contacts__email-value">oc_snau@ukr.net</div>
             <div class="contacts__email-qr">
-              <img src="/public/img/qr/email.jpg" alt="qr-ocsnau" />
+              <img src="/public/img/qr/email.jpg" alt="qr-email" />
             </div>
           </div>
           <div class="contacts__phone contacts__grid-item">
             <div class="contacts__phone-label">Телефон</div>
             <div class="contacts__phone-value">+38 (05446)2-20-66</div>
             <div class="contacts__phone-qr">
-              <img src="/public/img/qr/telephone.jpg" alt="qr-ocsnau" />
+              <img src="/public/img/qr/telephone.jpg" alt="qr-telephone" />
             </div>
           </div>
           <div class="contacts__site contacts__grid-item">
