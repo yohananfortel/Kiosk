@@ -1,23 +1,36 @@
 <template>
   <div class="news-container">
     <h2 class="news-title">Останні новини</h2>
-    
+
     <div v-if="loading" class="loading-state">
       <div class="spinner"></div>
       <p>Завантаження новин...</p>
     </div>
-    
+
     <div v-else-if="error" class="error-state">
-      <svg class="error-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+      <svg
+        class="error-icon"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+        ></path>
+      </svg>
       <p>{{ error }}</p>
     </div>
 
     <div v-else class="news-grid">
       <div v-for="post in news" :key="post.id" class="news-card">
         <div class="news-card__image-container">
-          <img 
-            :src="getFeaturedImage(post)" 
-            :alt="stripHtml(post.title.rendered)" 
+          <img
+            :src="getFeaturedImage(post)"
+            :alt="stripHtml(post.title.rendered)"
             class="news-card__image"
             @error="handleImageError"
           />
@@ -25,40 +38,100 @@
         </div>
         <div class="news-card__content">
           <div class="news-card__date">
-            <svg class="date-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            <svg
+              class="date-icon"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+              ></path>
+            </svg>
             {{ formatDate(post.date) }}
           </div>
-          <h3 class="news-card__title" v-html="post.title.rendered"></h3> 
+          <h3 class="news-card__title" v-html="post.title.rendered"></h3>
           <a href="#" @click.prevent="openModal(post)" class="news-card__link">
             Читати далі
-            <svg class="arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+            <svg
+              class="arrow-icon"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M14 5l7 7m0 0l-7 7m7-7H3"
+              ></path>
+            </svg>
           </a>
         </div>
       </div>
     </div>
 
     <!-- Модальне вікно -->
-    <div v-if="isModalOpen && selectedPost" class="modal-overlay" @click="closeModal">
+    <div
+      v-if="isModalOpen && selectedPost"
+      class="modal-overlay"
+      @click="closeModal"
+    >
       <div class="modal-content" @click.stop>
         <button class="modal-close" @click="closeModal">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          <svg
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            ></path>
+          </svg>
         </button>
         <div class="modal-date">
-            <svg class="date-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-            {{ formatDate(selectedPost.date) }}
+          <svg
+            class="date-icon"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+            ></path>
+          </svg>
+          {{ formatDate(selectedPost.date) }}
         </div>
         <div class="modal-header">
-          
-          <img v-if="getFeaturedImage(selectedPost) !== defaultImage" :src="getFeaturedImage(selectedPost)" :alt="stripHtml(selectedPost.title.rendered)" class="modal-image"/>
-          
-          
-          
+          <img
+            v-if="getFeaturedImage(selectedPost) !== defaultImage"
+            :src="getFeaturedImage(selectedPost)"
+            :alt="stripHtml(selectedPost.title.rendered)"
+            class="modal-image"
+          />
+
           <h3 v-html="selectedPost.title.rendered"></h3>
-          
         </div>
         <div class="modal-body">
-          
-          <div class="modal-text" v-html="selectedPost.content?.rendered || selectedPost.excerpt?.rendered"></div>
+          <div
+            class="modal-text"
+            v-html="
+              selectedPost.content?.rendered || selectedPost.excerpt?.rendered
+            "
+          ></div>
         </div>
       </div>
     </div>
@@ -66,7 +139,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted } from "vue";
 
 const news = ref([]);
 const loading = ref(true);
@@ -78,7 +151,7 @@ const selectedPost = ref(null);
 const openModal = (post) => {
   selectedPost.value = post;
   isModalOpen.value = true;
-  document.body.style.overflow = 'hidden';
+  document.body.style.overflow = "hidden";
 };
 
 const closeModal = () => {
@@ -86,41 +159,51 @@ const closeModal = () => {
   setTimeout(() => {
     selectedPost.value = null;
   }, 300); // чекаємо завершення анімації
-  document.body.style.overflow = '';
+  document.body.style.overflow = "";
 };
 
 // Очищення при знищенні компонента
 onUnmounted(() => {
-  document.body.style.overflow = '';
+  document.body.style.overflow = "";
 });
 
-const defaultImage = 'https://via.placeholder.com/400x250/e2e8f0/4a5568?text=Фото+немає';
+const defaultImage =
+  "https://via.placeholder.com/400x250/e2e8f0/4a5568?text=Фото+немає";
 
 const fetchNews = async () => {
   try {
     loading.value = true;
     error.value = null;
-    const response = await fetch('https://ocsnau.net/wp-json/wp/v2/news?_embed=true&per_page=6&order=desc&nocache=${new Date().getTime()}');
+    const response = await fetch(
+      "https://ocsnau.net/wp-json/wp/v2/news?_embed=true&per_page=6&order=desc&nocache=${new Date().getTime()}",
+    );
     if (!response.ok) {
-      throw new Error('Помилка при завантаженні новин з сервера');
+      throw new Error("Помилка при завантаженні новин з сервера");
     }
-    const data = await response.json(); 
+    const data = await response.json();
     news.value = data;
   } catch (err) {
-    error.value = err.message || 'Не вдалося завантажити новини. Спробуйте пізніше.';
-    console.error('Помилка завантаження новин:', err);
+    error.value =
+      err.message || "Не вдалося завантажити новини. Спробуйте пізніше.";
+    console.error("Помилка завантаження новин:", err);
   } finally {
     loading.value = false;
   }
 };
 
 const getFeaturedImage = (post) => {
-  if (post._embedded && post._embedded['wp:featuredmedia'] && post._embedded['wp:featuredmedia'][0]) {
-    const media = post._embedded['wp:featuredmedia'][0];
+  if (
+    post._embedded &&
+    post._embedded["wp:featuredmedia"] &&
+    post._embedded["wp:featuredmedia"][0]
+  ) {
+    const media = post._embedded["wp:featuredmedia"][0];
     if (media.media_details && media.media_details.sizes) {
       // Спробуємо взяти зображення середнього або великого розміру для кращої оптимізації
-      if (media.media_details.sizes.medium_large) return media.media_details.sizes.medium_large.source_url;
-      if (media.media_details.sizes.large) return media.media_details.sizes.large.source_url;
+      if (media.media_details.sizes.medium_large)
+        return media.media_details.sizes.medium_large.source_url;
+      if (media.media_details.sizes.large)
+        return media.media_details.sizes.large.source_url;
     }
     return media.source_url;
   }
@@ -132,15 +215,15 @@ const handleImageError = (e) => {
 };
 
 const stripHtml = (html) => {
-  const tmp = document.createElement('DIV');
+  const tmp = document.createElement("DIV");
   tmp.innerHTML = html;
-  return tmp.textContent || tmp.innerText || '';
+  return tmp.textContent || tmp.innerText || "";
 };
 
 const formatDate = (dateString) => {
-  const options = { year: 'numeric', month: 'long', day: 'numeric' };
+  const options = { year: "numeric", month: "long", day: "numeric" };
   const date = new Date(dateString);
-  return date.toLocaleDateString('uk-UA', options);
+  return date.toLocaleDateString("uk-UA", options);
 };
 
 onMounted(() => {
@@ -153,7 +236,16 @@ onMounted(() => {
   max-width: 1200px;
   margin: 0 auto;
   padding: 40px 20px;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    sans-serif;
 }
 
 .news-title {
@@ -166,7 +258,7 @@ onMounted(() => {
 }
 
 .news-title::after {
-  content: '';
+  content: "";
   display: block;
   width: 60px;
   height: 4px;
@@ -176,7 +268,8 @@ onMounted(() => {
 }
 
 /* Стани завантаження та помилки */
-.loading-state, .error-state {
+.loading-state,
+.error-state {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -204,8 +297,12 @@ onMounted(() => {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .error-state {
@@ -237,7 +334,9 @@ onMounted(() => {
   background: #ffffff;
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.05),
+    0 2px 4px -1px rgba(0, 0, 0, 0.03);
   transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
@@ -248,7 +347,9 @@ onMounted(() => {
 
 .news-card:hover {
   transform: translateY(-8px);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
 .news-card__image-container {
@@ -276,7 +377,11 @@ onMounted(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(to bottom, transparent 60%, rgba(0, 0, 0, 0.1) 100%);
+  background: linear-gradient(
+    to bottom,
+    transparent 60%,
+    rgba(0, 0, 0, 0.1) 100%
+  );
   pointer-events: none;
 }
 
@@ -375,7 +480,7 @@ onMounted(() => {
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 1.5rem;
   }
-  
+
   .news-title {
     font-size: 2rem;
     margin-bottom: 2rem;
@@ -399,8 +504,12 @@ onMounted(() => {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .modal-content {
@@ -418,8 +527,14 @@ onMounted(() => {
 }
 
 @keyframes slideUp {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 .modal-close {
@@ -453,13 +568,13 @@ onMounted(() => {
 
 .modal-header {
   display: flex;
-    padding: 30px 40px 20px;
-    border-bottom: 1px solid #edf2f7;
-    flex-wrap: nowrap;
-    flex-direction: row;
-    justify-content: center;
-    align-content: center;
-    align-items: flex-start;
+  padding: 30px 40px 20px;
+  border-bottom: 1px solid #edf2f7;
+  flex-wrap: nowrap;
+  flex-direction: row;
+  justify-content: center;
+  align-content: center;
+  align-items: flex-start;
 }
 
 .modal-header h3 {
@@ -485,12 +600,12 @@ onMounted(() => {
 }
 
 .modal-image {
-      width: auto;
-    max-height: 400px;
-    /* object-fit: scale-down; */
-    border-radius: 12px;
-    margin-bottom: 25px;
-    margin-right: 20px;
+  width: auto;
+  max-height: 400px;
+  /* object-fit: scale-down; */
+  border-radius: 12px;
+  margin-bottom: 25px;
+  margin-right: 20px;
 }
 
 .modal-text {
@@ -508,7 +623,8 @@ onMounted(() => {
   max-width: 100%;
   height: auto;
   border-radius: 8px;
-  margin: 1rem 0;
+  display: block !important;
+  margin: 1.5rem auto !important;
 }
 
 .modal-text :deep(a) {
