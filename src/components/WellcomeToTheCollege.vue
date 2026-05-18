@@ -41,6 +41,7 @@ import Studentu from "./Studentu.vue";
 import Shelter from "./Shelter.vue";
 import Contacts from "./Contacts.vue";
 import Dormitory from "./Dormitory.vue";
+import News from "./News.vue";
 
 const isModalOpen = ref(false);
 const activeComponent = shallowRef(null);
@@ -91,6 +92,8 @@ const menuItems = ref([
     title: "Новини",
     image: "img/news.png",
     color: "#00a53f",
+    component: News,
+    link: "/news",
   },
 ]);
 
