@@ -1,160 +1,315 @@
+<script setup>
+import { ref } from "vue";
+
+// Твій оригінальний масив кроків із красивими описами
+const steps = ref([
+  {
+    title: "Крок 1: Вибір спеціальності",
+    description:
+      "Ознайомтеся з переліком спеціальностей нашого коледжу в інформаційному меню та оберіть ту, яка найбільше відповідає вашим інтересам та майбутнім кар'єрним цілям.",
+    badge: "Початок",
+    colorClass: "applicant-map__step-number--start",
+  },
+  {
+    title: "Крок 2: Підготовка документів",
+    description:
+      "Зберіть необхідний пакет документів: паспорт або свідоцтво про народження, ідентифікаційний код, документ про попередню освіту (з додатком), 4 фотокартки 3х4 та медичну довідку.",
+    badge: "Важливо",
+    colorClass: "applicant-map__step-number--warning",
+  },
+  {
+    title: "Крок 3: Подання заяви",
+    description:
+      "Зареєструйте свій електронний кабінет вступника та подайте заяву в електронній формі. За потреби зверніться до нашої приймальної комісії за технічною допомогою.",
+    badge: "Онлайн",
+    colorClass: "applicant-map__step-number--info",
+  },
+  {
+    title: "Крок 4: Співбесіда чи НМТ",
+    description:
+      "Пройдіть індивідуальну усну співбесіду або надайте результати Національного мультипредметного тесту (НМТ) відповідно до вимог обраної вами спеціальності.",
+    badge: "Іспити",
+    colorClass: "applicant-map__step-number--danger",
+  },
+  {
+    title: "Крок 5: Зарахування до коледжу",
+    description:
+      "Слідкуйте за рейтинговими списками. Після отримання рекомендації до зарахування виконайте вимоги та привітайте себе — ви офіційно студент найкращого коледжу!",
+    badge: "Успіх",
+    colorClass: "applicant-map__step-number--success",
+  },
+]);
+</script>
+
 <template>
-  <div class="max-w-4xl mx-auto p-6 bg-white rounded-xl shadow-lg">
-    <header class="text-center mb-10">
-      <h2 class="text-3xl font-bold text-slate-800 uppercase tracking-wide">
+  <div class="applicant-map">
+    <header class="applicant-map__header">
+      <h2 class="applicant-map__main-title">
         Карта вступника: 5 кроків до успіху
       </h2>
-      <p class="text-slate-500 mt-2">Твій путівник для вступу до нашого коледжу</p>
+      <p class="applicant-map__subtitle">
+        Твій покроковий путівник для вступу до нашого закладу
+      </p>
     </header>
 
-    <div class="relative">
-      <div class="absolute left-8 top-0 h-full w-0.5 bg-blue-100 hidden md:block"></div>
+    <div class="applicant-map__timeline">
+      <div class="applicant-map__line"></div>
 
-      <div class="space-y-8">
-        <div 
-          v-for="(step, index) in steps" 
-          :key="index" 
-          class="relative flex flex-col md:flex-row items-start md:items-center group"
+      <div class="applicant-map__steps-list">
+        <div
+          v-for="(step, index) in steps"
+          :key="index"
+          class="applicant-map__step-item"
         >
-          <div 
-            class="flex items-center justify-center w-16 h-16 rounded-full border-4 border-white shadow-md z-10 transition-transform duration-300 group-hover:scale-110"
-            :class="step.color"
-          >
-            <span class="text-white font-bold text-2xl">{{ index + 1 }}</span>
+          <div class="applicant-map__step-number-zone">
+            <div :class="['applicant-map__step-number', step.colorClass]">
+              <span class="applicant-map__digit">{{ index + 1 }}</span>
+            </div>
           </div>
 
-          <div class="mt-4 md:mt-0 md:ml-10 flex-1 p-5 rounded-lg border border-slate-100 hover:border-blue-200 hover:shadow-md transition-all bg-slate-50">
-            <h3 class="text-xl font-bold text-slate-700 mb-2">{{ step.title }}</h3>
-            <p class="text-slate-600 leading-relaxed">
+          <div class="applicant-map__card">
+            <div class="applicant-map__card-header">
+              <h3 class="applicant-map__card-title">{{ step.title }}</h3>
+              <span
+                :class="[
+                  'applicant-map__badge',
+                  'applicant-map__badge' + step.colorClass.substring(26),
+                ]"
+              >
+                {{ step.badge }}
+              </span>
+            </div>
+            <p class="applicant-map__card-text">
               {{ step.description }}
             </p>
-            <div v-if="step.deadline" class="mt-3 text-sm font-semibold text-blue-600">
-              📅 Термін: {{ step.deadline }}
-            </div>
           </div>
         </div>
       </div>
     </div>
-
-    <div class="mt-12 p-6 bg-blue-50 rounded-xl border-l-4 border-blue-500">
-      <h4 class="font-bold text-blue-800 mb-2 italic">Порада від приймальної комісії:</h4>
-      <p class="text-blue-700 text-sm">
-        Не зволікайте з реєстрацією електронного кабінету! Перевірте наявність усіх оригіналів документів заздалегідь, щоб уникнути черг в останні дні прийому.
-      </p>
-    </div>
   </div>
 </template>
 
-<script setup>
-import { ref } from 'vue';
-
-const steps = ref([
-  {
-    title: 'Реєстрація електронного кабінету',
-    description: 'Створіть особистий кабінет вступника на офіційному порталі. Завантажте фотокартку та додаток до атестата.',
-    deadline: 'з 1 липня',
-    color: 'bg-blue-500'
-  },
-  {
-    title: 'Подача електронної заяви',
-    description: 'Оберіть наш коледж та бажану спеціальність у переліку. Вкажіть пріоритетність та додайте мотиваційний лист.',
-    deadline: 'до середини липня',
-    color: 'bg-indigo-500'
-  },
-  {
-    title: 'Вступні випробування або розгляд документів',
-    description: 'Пройдіть співбесіду, творчий конкурс або дочекайтеся результатів розгляду мотиваційних листів залежно від обраної спеціальності.',
-    deadline: 'згідно з графіком',
-    color: 'bg-purple-500'
-  },
-  {
-    title: 'Рекомендація до зарахування',
-    description: 'Знайдіть своє прізвище у списках рекомендованих на бюджет або контракт, які з’являться в особистому кабінеті.',
-    deadline: 'кінець липня / початок серпня',
-    color: 'bg-teal-500'
-  },
-  {
-    title: 'Підтвердження вибору та зарахування',
-    description: 'Принесіть оригінали документів до коледжу або підтвердіть вибір за допомогою ЕЦП/Дія.Підпис. Вітаємо, ви — студент!',
-    deadline: 'протягом 3-5 днів після рекомендації',
-    color: 'bg-green-500'
-  }
-]);
-</script>
-
 <style scoped>
-/* Додаткові стилі для плавності анімації за потреби */
+/* =========================================
+   Блок: applicant-map (Карта вступника)
+   Методологія: БЕМ
+   ========================================= */
 
-/* Плавна поява елементів при завантаженні */
-.space-y-8 > div {
-  animation: fadeInUp 0.6s ease forwards;
-  opacity: 0;
+.applicant-map {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
 }
 
-/* Затримка анімації для кожного кроку, щоб вони з'являлися по черзі */
-.space-y-8 > div:nth-child(1) { animation-delay: 0.1s; }
-.space-y-8 > div:nth-child(2) { animation-delay: 0.2s; }
-.space-y-8 > div:nth-child(3) { animation-delay: 0.3s; }
-.space-y-8 > div:nth-child(4) { animation-delay: 0.4s; }
-.space-y-8 > div:nth-child(5) { animation-delay: 0.5s; }
+.applicant-map__header {
+  text-align: center;
+  margin-bottom: 50px;
+}
 
-@keyframes fadeInUp {
+.applicant-map__main-title {
+  font-size: 3rem;
+  font-weight: 800;
+  color: #1e293b;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0 0 10px 0;
+}
+
+.applicant-map__subtitle {
+  font-size: 1.4rem;
+  color: #64748b;
+  margin: 0;
+}
+
+/* =========================================
+   Таймлайн та лінія (Повна симетрія)
+   ========================================= */
+.applicant-map__timeline {
+  position: relative;
+  width: 100%;
+  margin-top: 30px;
+}
+
+/* Елемент: Симетрична пунктирна лінія ліворуч */
+.applicant-map__line {
+  position: absolute;
+  left: 40px; /* Рівно посередині майбутнього кола шириною 80px */
+  top: 40px;
+  bottom: 40px;
+  width: 4px;
+  background: linear-gradient(to bottom, #cbd5e1 50%, transparent 50%);
+  background-size: 4px 16px; /* Пунктирний сучасний ефект */
+  transform: translateX(-50%);
+  z-index: 1;
+}
+
+.applicant-map__steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 35px; /* Рівномірні великі відступи */
+}
+
+/* Елемент: Рядок одного кроку */
+.applicant-map__step-item {
+  display: flex;
+  align-items: center; /* Центрує коло та картку по вертикальній осі */
+  position: relative;
+  z-index: 2;
+
+  /* Ефект плавної появи */
+  opacity: 0;
+  transform: translateY(30px);
+  animation: stepFadeIn 0.5s ease forwards;
+}
+
+/* Таймінги для послідовної появи елементів */
+.applicant-map__step-item:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.applicant-map__step-item:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.applicant-map__step-item:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.applicant-map__step-item:nth-child(4) {
+  animation-delay: 0.4s;
+}
+.applicant-map__step-item:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+/* Елемент: Зона розміщення кола */
+.applicant-map__step-number-zone {
+  width: 80px;
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Елемент: Велике красиве коло з номером */
+.applicant-map__step-number {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 5px solid #ffffff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease;
+}
+
+.applicant-map__digit {
+  color: #ffffff;
+  font-size: 2.2rem;
+  font-weight: 800;
+}
+
+/* Модифікатори кольорів для кіл */
+.applicant-map__step-number--start {
+  background: #00a53f;
+}
+.applicant-map__step-number--warning {
+  background: #f59e0b;
+}
+.applicant-map__step-number--info {
+  background: #3b82f6;
+}
+.applicant-map__step-number--danger {
+  background: #ef4444;
+}
+.applicant-map__step-number--success {
+  background: #10b981;
+}
+
+/* =========================================
+   Елемент: Текстова Картка кроку
+   ========================================= */
+.applicant-map__card {
+  flex: 1;
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 25px 35px;
+  margin-left: 30px; /* Відступ від зони кола */
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+}
+
+.applicant-map__card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.applicant-map__card-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 0;
+}
+
+/* Бейджики */
+.applicant-map__badge {
+  padding: 6px 14px;
+  border-radius: 30px;
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #ffffff;
+}
+.applicant-map__badge--start {
+  background: #00a53f;
+}
+.applicant-map__badge--warning {
+  background: #f59e0b;
+}
+.applicant-map__badge--info {
+  background: #3b82f6;
+}
+.applicant-map__badge--danger {
+  background: #ef4444;
+}
+.applicant-map__badge--success {
+  background: #10b981;
+}
+
+/* Текст опису */
+.applicant-map__card-text {
+  font-size: 1.35rem; /* Великий розмір тексту */
+  line-height: 1.6;
+  color: #475569;
+  margin: 0;
+  text-align: justify;
+}
+
+/* Інтерактивний ефект при наведенні на весь рядок */
+.applicant-map__step-item:hover .applicant-map__card {
+  transform: translateX(10px);
+  background: #ffffff;
+  border-color: #00a53f;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+.applicant-map__step-item:hover .applicant-map__step-number {
+  transform: scale(1.1);
+}
+
+/* Ключові кадри анімації появи */
+@keyframes stepFadeIn {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(30px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
-
-/* Стилізація сполучної лінії (пунктирний ефект) */
-.relative div.absolute.left-8 {
-  background: linear-gradient(to bottom, #dbeafe 50%, transparent 50%);
-  background-size: 1px 15px; /* Створює ефект пунктиру */
-}
-
-/* Додатковий ефект при наведенні на картку кроку */
-.group:hover .flex-1 {
-  transform: translateX(8px);
-  background-color: #ffffff;
-  border-left: 4px solid currentColor; /* Колір підтягнеться з контексту, якщо додати динамічно */
-}
-
-/* Спеціальний стан для іконок (кіл) */
-.group:hover .z-10 {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-}
-
-/* Адаптивність для дуже малих екранів */
-@media (max-width: 640px) {
-  header h2 {
-    font-size: 1.5rem;
-  }
-  
-  .w-16 {
-    width: 3rem;
-    height: 3rem;
-    font-size: 1.25rem;
-  }
-}
-
-/* Ефект "світіння" для поради від комісії */
-.bg-blue-50 {
-  position: relative;
-  overflow: hidden;
-}
-
-.bg-blue-50::after {
-  content: "";
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 70%);
-  pointer-events: none;
-}
-
 </style>
