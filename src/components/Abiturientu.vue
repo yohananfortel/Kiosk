@@ -65,7 +65,7 @@ const menuItemsAbit = ref([
     id: 3,
     title: "Державне замовлення",
     color: "#00a53f",
-    image: "img/eror.png",
+    image: "img/derjavnezamovlena.png",
   },
 ]);
 

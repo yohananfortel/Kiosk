@@ -1,13 +1,11 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from "vue";
 import WellcomeToTheCollege from "./components/WellcomeToTheCollege.vue";
-import VstupnaKampania from "./components/VstupnaKampania.vue"; // Підключаємо НОВИЙ файл для 2-ї сторінки
+import VstupnaKampania from "./components/VstupnaKampania.vue";
 
-// Стан поточної сторінки (1 - Головна, 2 - Вступна кампанія)
 const currentPage = ref(1);
 const totalPages = 2;
 
-// Логіка таймера простою (1 хвилина = 60000 мс)
 const idleTimeout = ref(null);
 const IDLE_TIME = 60000;
 
@@ -21,7 +19,6 @@ const resetIdleTimer = () => {
   }, IDLE_TIME);
 };
 
-// Логіка свайпів для сенсорного екрана
 const touchStartX = ref(0);
 const touchEndX = ref(0);
 
@@ -65,7 +62,11 @@ onUnmounted(() => {
   <div class="top-line"></div>
 
   <div class="kiosk" @touchstart="handleTouchStart" @touchend="handleTouchEnd">
-    <header class="kiosk__header">
+    <!-- Додано динамічний клас: якщо сторінка 2, шапка стискається -->
+    <header
+      class="kiosk__header"
+      :class="{ 'kiosk__header--compact': currentPage === 2 }"
+    >
       <div class="kiosk__logo-wrapper">
         <img
           src="https://ocsnau.net/wp-content/themes/ocsnau_v3/assets/images/logo_ukr_color.png?v=2"
@@ -73,10 +74,15 @@ onUnmounted(() => {
           class="kiosk__logo-img"
         />
       </div>
-      <div class="kiosk__title-wrapper">
-        <h1 class="kiosk__main-title">Весь коледж на одному екрані</h1>
-      </div>
-      <div class="kiosk__controls"></div>
+
+      <Transition name="fade">
+        <div v-show="currentPage === 1" class="kiosk__title-wrapper main-hero">
+          <h1 class="main-hero__title">
+            Весь коледж <br />
+            <span class="main-hero__highlight">на одному екрані</span>
+          </h1>
+        </div>
+      </Transition>
     </header>
 
     <div class="kiosk__pages">
@@ -159,17 +165,138 @@ body {
   font-weight: bold;
 }
 
-.button {
-  padding: 8px 20px;
-  background-color: #42b983;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: 0.3s;
+/* ==========================================================================
+   СТИЛІ ПО BEM ДЛЯ СЛАЙДЕРА (ОБОЛОНКИ)
+   ========================================================================== */
+.kiosk {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  position: relative;
 }
 
-/* СТИЛІ КАРТОЧОК ТА СІТКИ З WELLCOMETOTHECOLLEGE */
+.kiosk__header {
+  position: relative;
+  width: 100%;
+  min-height: 180px; /* Висота для першої сторінки */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 10px;
+  transition: min-height 0.4s ease; /* Плавна зміна висоти */
+}
+
+/* Стиснута шапка для другої сторінки */
+.kiosk__header--compact {
+  min-height: 90px; /* Зменшуємо висоту, підтягуючи контент вгору */
+}
+
+.kiosk__logo-wrapper {
+  position: absolute;
+  left: 40px;
+  top: 15px;
+  z-index: 10;
+}
+
+.kiosk__logo-img {
+  height: 7em;
+}
+
+/* ==========================================================================
+   НОВІ СТИЛІ ГОЛОВНОГО ЗАГОЛОВКУ
+   ========================================================================== */
+.main-hero {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.main-hero__title {
+  font-size: 4rem;
+  font-weight: 900;
+  color: #1e293b;
+  line-height: 1.1;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.main-hero__highlight {
+  color: #166534;
+  text-shadow: 0 10px 25px rgba(22, 101, 52, 0.15);
+}
+
+/* Анімація зникнення тексту */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* ==========================================================================
+   СТИЛІ КАРТОЧОК ТА ІНШОГО
+   ========================================================================== */
+.kiosk__pages {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  overflow: hidden;
+}
+.kiosk__page-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  transition:
+    transform 0.5s ease-in-out,
+    opacity 0.5s ease-in-out;
+  opacity: 0;
+  pointer-events: none;
+  overflow-y: auto;
+}
+.kiosk__page-wrapper--active {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+.kiosk__page-wrapper--left {
+  transform: translateX(-100%);
+}
+.kiosk__page-wrapper--right {
+  transform: translateX(100%);
+}
+
+.kiosk__dots {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  padding: 1rem 0 2.5rem 0;
+  z-index: 10;
+}
+.kiosk__dot {
+  width: 18px;
+  height: 18px;
+  background-color: #cbd5e1;
+  border-radius: 50%;
+  cursor: pointer;
+  transition:
+    background-color 0.3s,
+    transform 0.3s;
+}
+.kiosk__dot--active {
+  background-color: #166534;
+  transform: scale(1.3);
+}
+
 .tile {
   background: #ffffff94;
   border-radius: 1em;
@@ -243,163 +370,5 @@ body {
 .flat-image {
   max-width: 150px;
   filter: invert(100%);
-}
-
-/* МОДАЛЬНІ ВІКНА (Загальні для всього додатку) */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(6, 78, 59, 0.6);
-  backdrop-filter: blur(8px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-.modal-content {
-  background-color: #ffffff;
-  width: 90%;
-  border-radius: 24px;
-  padding: 3rem;
-  position: relative;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  border-top: 12px solid #16a34a;
-}
-.close-btn {
-  position: absolute;
-  top: 1.5rem;
-  right: 1.5rem;
-  background-color: #f1f5f9;
-  color: #334155;
-  border: none;
-  padding: 1rem 1.5rem;
-  border-radius: 12px;
-  font-size: 1.2rem;
-  font-weight: bold;
-  cursor: pointer;
-}
-.close-btn:active {
-  background-color: #e2e8f0;
-  transform: scale(0.95);
-}
-.modal-header {
-  margin-bottom: 2rem;
-  padding-right: 8rem;
-}
-.modal-code {
-  display: inline-block;
-  background-color: #dcfce7;
-  color: #166534;
-  padding: 0.5rem 1.2rem;
-  border-radius: 8px;
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-}
-.modal-header h2 {
-  font-size: 2.5rem;
-  color: #064e3b;
-  line-height: 1.2;
-}
-.modal-body p {
-  font-size: 1.5rem;
-  line-height: 1.6;
-  color: #334155;
-}
-
-@media (max-width: 480px) {
-  .tiles-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-  }
-  .tile-title {
-    font-size: 1rem;
-  }
-}
-
-/* ==========================================================================
-   СТИЛІ ПО BEM ДЛЯ СЛАЙДЕРА (ОБОЛОНКИ)
-   ========================================================================== */
-.kiosk {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  padding: 1rem;
-  position: relative;
-}
-.kiosk__header {
-  text-align: center;
-  padding-top: 1rem;
-  justify-content: space-around;
-  display: flex;
-  align-content: center;
-}
-.kiosk__logo-img {
-  height: 7em;
-}
-.kiosk__main-title {
-  font-size: 3rem;
-  color: #166534;
-  margin-bottom: 0.5rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.kiosk__pages {
-  position: relative;
-  flex: 1;
-  width: 100%;
-  overflow: hidden;
-}
-.kiosk__page-wrapper {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  transition:
-    transform 0.5s ease-in-out,
-    opacity 0.5s ease-in-out;
-  opacity: 0;
-  pointer-events: none;
-  overflow-y: auto;
-}
-.kiosk__page-wrapper--active {
-  transform: translateX(0);
-  opacity: 1;
-  pointer-events: auto;
-}
-.kiosk__page-wrapper--left {
-  transform: translateX(-100%);
-}
-.kiosk__page-wrapper--right {
-  transform: translateX(100%);
-}
-
-.kiosk__dots {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  padding: 1rem 0 2.5rem 0;
-  z-index: 10;
-}
-.kiosk__dot {
-  width: 18px;
-  height: 18px;
-  background-color: #cbd5e1;
-  border-radius: 50%;
-  cursor: pointer;
-  transition:
-    background-color 0.3s,
-    transform 0.3s;
-}
-.kiosk__dot--active {
-  background-color: #166534;
-  transform: scale(1.3);
 }
 </style>

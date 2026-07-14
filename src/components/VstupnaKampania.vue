@@ -60,7 +60,7 @@ const menuItems = ref([
   {
     id: 1,
     title: "Наші спеціальності",
-    image: "img/specialty.png",
+    image: "img/nahispetialnosti.png",
     color: "#00a53f", // Колір з першої сторінки
     component: Speciality,
   },

@@ -67,7 +67,7 @@ const menuItemsStudent = ref([
     title: "Розклад занять",
     color: "#00a53f",
     component: Schedule,
-    image: "img/eror.png",
+    image: "img/roskladzanat.png",
   },
 ]);
 
