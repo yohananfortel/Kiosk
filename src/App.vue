@@ -76,10 +76,11 @@ onUnmounted(() => {
       </div>
 
       <Transition name="fade">
-        <div v-show="currentPage === 1" class="kiosk__title-wrapper main-hero">
+        <div class="kiosk__title-wrapper main-hero">
           <h1 class="main-hero__title">
-            Весь коледж <br />
-            <span class="main-hero__highlight">на одному екрані</span>
+            <span class="main-hero__highlight"
+              >Весь коледж на одному екрані
+            </span>
           </h1>
         </div>
       </Transition>
@@ -177,30 +178,19 @@ body {
 }
 
 .kiosk__header {
-  position: relative;
   width: 100%;
-  min-height: 180px; /* Висота для першої сторінки */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding-top: 10px;
-  transition: min-height 0.4s ease; /* Плавна зміна висоти */
+  display: grid;
+  grid-template-columns: 200px 1fr;
 }
 
 /* Стиснута шапка для другої сторінки */
 .kiosk__header--compact {
-  min-height: 90px; /* Зменшуємо висоту, підтягуючи контент вгору */
-}
-
-.kiosk__logo-wrapper {
-  position: absolute;
-  left: 40px;
-  top: 15px;
-  z-index: 10;
+  height: 100px; /* Зменшуємо висоту, підтягуючи контент вгору */
 }
 
 .kiosk__logo-img {
-  height: 7em;
+  height: 80px;
+  transition: height 0.4s ease;
 }
 
 /* ==========================================================================
@@ -215,10 +205,7 @@ body {
 }
 
 .main-hero__title {
-  font-size: 4rem;
-  font-weight: 900;
-  color: #1e293b;
-  line-height: 1.1;
+  font-size: 3rem;
   margin: 0;
   text-transform: uppercase;
   letter-spacing: 1px;

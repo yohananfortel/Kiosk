@@ -103,7 +103,8 @@ const closeModal = () => {
 }
 
 .vstup-title {
-  font-size: 4rem;
+  padding: auto;
+  font-size: 3rem;
   font-weight: 800;
   color: #166534;
   text-transform: uppercase;
@@ -121,8 +122,8 @@ const closeModal = () => {
 
 /* Твои классы для карточек (увеличенные) */
 .tile-card-large {
-  width: 400px; /* Делаем их немного больше для солидности */
-  height: 400px;
+  width: 350px; /* Строго фиксированная ширина */
+  height: 320px; /* Строго фиксированная высота = идеальный квадрат */
   border-radius: 20px;
   display: flex;
   flex-direction: column;
@@ -130,6 +131,8 @@ const closeModal = () => {
   justify-content: center;
   color: white;
   cursor: pointer;
+  padding: 30px;
+  text-align: center;
 
   /* Анимация */
   transition:
