@@ -1,24 +1,135 @@
+<template>
+  <div class="specialties">
+    <header class="specialties__header">
+      <h1 class="specialties__title">Спеціальності нашого закладу</h1>
+      <p class="specialties__subtitle">
+        Оберіть спеціальність для отримання детальної інформації
+      </p>
+    </header>
+
+    <div v-if="loading && specialties.length === 0" class="specialties__state specialties__state--loading">
+      <div class="specialties__spinner"></div>
+      <p>Завантаження спеціальностей...</p>
+    </div>
+
+    <div v-else-if="error && specialties.length === 0" class="specialties__state specialties__state--error">
+      <svg viewBox="0 0 24 24" width="42" height="42" fill="none" stroke="#dc2626" stroke-width="2">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+        <line x1="12" y1="9" x2="12" y2="13" />
+        <line x1="12" y1="17" x2="12.01" y2="17" />
+      </svg>
+      <p>{{ error }}</p>
+      <button class="specialties__retry-btn" @click="fetchSpecialties(true)">Спробувати знову</button>
+    </div>
+
+    <main v-else class="specialties__grid">
+      <div
+        v-for="item in specialties"
+        :key="item.id"
+        class="specialty-card"
+        @click="openModal(item)"
+      >
+        <div class="specialty-card__media">
+          <img
+            v-if="item.thumbnail"
+            :src="item.thumbnail"
+            :alt="item.title || item.name"
+            class="specialty-card__image"
+          />
+          <div v-else class="specialty-card__placeholder">
+            <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#166534" stroke-width="2">
+              <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+              <path d="M6 12v5c3 3 9 3 12 0v-5" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="specialty-card__content">
+          <h3 class="specialty-card__title">{{ item.title || item.name }}</h3>
+        </div>
+      </div>
+    </main>
+
+    <!-- Модальне вікно спеціальності -->
+    <Teleport to="body">
+      <Transition name="fade">
+        <div
+          v-if="selectedSpecialty"
+          class="specialty-modal__overlay"
+          @click.self="closeModal"
+        >
+          <div class="specialty-modal__content">
+            <button class="specialty-modal__close-btn" @click="closeModal">
+              &times;
+            </button>
+
+            <header class="specialty-modal__header">
+              <h2 class="specialty-modal__title">
+                {{ selectedSpecialty.name || selectedSpecialty.title }}
+              </h2>
+            </header>
+
+            <div class="specialty-modal__body">
+              <div class="specialty-modal__meta">
+                <span class="specialty-modal__meta-icon">
+                  <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#166534" stroke-width="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 16 14" />
+                  </svg>
+                </span>
+                <div class="specialty-modal__meta-info">
+                  <span class="specialty-modal__meta-label">Термін навчання:</span>
+                  <span class="specialty-modal__meta-value">
+                    {{ selectedSpecialty.l || selectedSpecialty.duration || selectedSpecialty.term || "Згідно з освітньою програмою" }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="specialty-modal__desc-block">
+                <h4 class="specialty-modal__desc-title">Про спеціальність:</h4>
+                <p class="specialty-modal__desc-text">
+                  {{ selectedSpecialty.description || "Інформація про спеціальність уточнюється у приймальній комісії." }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+  </div>
+</template>
+
 <script setup>
 import { ref, onMounted } from "vue";
+import { fetchWithCache, getCachedData } from "../utils/cache";
 
 const selectedSpecialty = ref(null);
 const specialties = ref([]);
 const loading = ref(true);
 const error = ref(null);
 
-const fetchSpecialties = async () => {
+const fetchSpecialties = async (forceRefresh = false) => {
+  const url = "https://ocsnau.net/wp-json/spa/v1/specialties";
   try {
-    const response = await fetch("//ocsnau.net/wp-json/spa/v1/specialties");
+    loading.value = true;
+    error.value = null;
 
-    if (!response.ok) {
-      throw new Error("Помилка при завантаженні даних");
+    if (!forceRefresh) {
+      const cached = getCachedData(url, true);
+      if (cached && Array.isArray(cached) && cached.length > 0) {
+        specialties.value = cached;
+      }
     }
 
-    specialties.value = await response.json();
-    console.log("Завантажені спеціальності:", specialties.value);
+    const data = await fetchWithCache(url, {}, 1000 * 60 * 60 * 24);
+    if (Array.isArray(data)) {
+      specialties.value = data;
+    }
   } catch (err) {
-    error.value = err.message;
-    console.error("Помилка при завантаженні спеціальностей:", err);
+    if (specialties.value.length === 0) {
+      error.value = "Не вдалося завантажити перелік спеціальностей.";
+    }
+    console.error("[Speciality] Помилка завантаження:", err);
   } finally {
     loading.value = false;
   }
@@ -37,112 +148,25 @@ onMounted(() => {
 });
 </script>
 
-<template>
-  <div class="specialties">
-    <header class="specialties__header">
-      <h1 class="specialties__main-title">Спеціальності нашого закладу</h1>
-      <p class="specialties__subtitle">
-        Оберіть спеціальність для отримання детальної інформації
-      </p>
-    </header>
-
-    <div v-if="loading" class="specialties__loading">
-      <div class="specialties__spinner"></div>
-      <p class="specialties__loading-text">Завантаження спеціальностей...</p>
-    </div>
-
-    <div v-else-if="error" class="specialties__error">
-      <span class="specialties__error-icon">⚠️</span>
-      <p class="specialties__error-text">{{ error }}</p>
-    </div>
-
-    <main v-else class="specialties__grid">
-      <div
-        v-for="item in specialties"
-        :key="item.id"
-        class="specialty-card"
-        @click="openModal(item)"
-      >
-        <div class="specialty-card__image-container">
-          <img
-            v-if="item.thumbnail"
-            :src="item.thumbnail"
-            alt="Specialty image"
-            class="specialty-card__image"
-          />
-          <div v-else class="specialty-card__placeholder">🎓</div>
-        </div>
-
-        <div class="specialty-card__content">
-          <h3 class="specialty-card__title">{{ item.title || item.name }}</h3>
-        </div>
-      </div>
-    </main>
-
-    <Teleport to="body">
-      <Transition name="submodal-fade">
-        <div
-          v-if="selectedSpecialty"
-          class="specialty-modal"
-          @click.self="closeModal"
-        >
-          <div class="specialty-modal__content">
-            <button class="specialty-modal__close-btn" @click="closeModal">
-              ✕ Закрити
-            </button>
-
-            <header class="specialty-modal__header">
-              <h2 class="specialty-modal__title">
-                {{ selectedSpecialty.name || selectedSpecialty.title }}
-              </h2>
-            </header>
-
-            <div class="specialty-modal__body">
-              <div class="specialty-detail">
-                <div class="specialty-detail__meta">
-                  <span class="specialty-detail__meta-icon">⏱️</span>
-                  <div class="specialty-detail__meta-info">
-                    <span class="specialty-detail__meta-label"
-                      >Термін навчання</span
-                    >
-                    <span class="specialty-detail__meta-value">{{
-                      selectedSpecialty.l || "Не вказано"
-                    }}</span>
-                  </div>
-                </div>
-
-                <div class="specialty-detail__description-block">
-                  <h4 class="specialty-detail__description-title">
-                    Про спеціальність
-                  </h4>
-                  <p class="specialty-detail__description-text">
-                    {{ selectedSpecialty.description }}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </Transition>
-    </Teleport>
-  </div>
-</template>
-
 <style scoped>
-/* =========================================
-   Блок: specialties
-   ========================================= */
+/* ==========================================================================
+   Блок: specialties (Каталог спеціальностей)
+   Методологія: БЕМ
+   ========================================================================== */
+
 .specialties {
   padding: 10px;
+  width: 100%;
+  font-family: system-ui, -apple-system, sans-serif;
 }
 
 .specialties__header {
-  margin-bottom: 40px;
-  text-align: center; /* Центруємо заголовок для повної симетрії */
+  margin-bottom: 35px;
+  text-align: center;
 }
 
-.specialties__main-title {
-  font-size: 3rem;
+.specialties__title {
+  font-size: 2.6rem;
   font-weight: 800;
   color: #166534;
   text-transform: uppercase;
@@ -151,162 +175,147 @@ onMounted(() => {
 }
 
 .specialties__subtitle {
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   color: #64748b;
   margin: 0;
 }
 
-/* =========================================
-   Сітка карток (Ідеальна симетрія)
-   ========================================= */
+.specialties__state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  gap: 15px;
+  border-radius: 16px;
+  background-color: #f8fafc;
+}
+
+.specialties__state--loading {
+  color: #166534;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.specialties__spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid #e2e8f0;
+  border-top-color: #166534;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.specialties__state--error {
+  color: #dc2626;
+  font-size: 1.2rem;
+}
+
+.specialties__error-icon {
+  font-size: 2.5rem;
+}
+
+.specialties__retry-btn {
+  padding: 10px 24px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  background-color: #166534;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   Сітка та картка спеціальності
+   ========================================================================== */
+
 .specialties__grid {
   display: flex;
-  flex-wrap: wrap; /* Дозволяє переносити картки */
-  gap: 40px; /* Однаковий відступ між усіма картками */
-  justify-content: center; /* Рівно по центру завжди! */
+  flex-wrap: wrap;
+  gap: 30px;
+  justify-content: center;
   align-items: stretch;
   max-width: 1400px;
   margin: 0 auto;
 }
 
-/* =========================================
-   Картки спеціальностей (Преміум стиль)
-   ========================================= */
 .specialty-card {
-  width: 320px; /* Суворо фіксована ширина */
-  height: 380px; /* Суворо фіксована висота */
+  width: 320px;
+  height: 380px;
   background: #ffffff;
   border-radius: 24px;
   display: flex;
   flex-direction: column;
   cursor: pointer;
-  overflow: hidden; /* Щоб картинка не вилазила за рамки */
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08); /* М'яка тінь */
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
-  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-/* Анімація підстрибування */
 .specialty-card:hover {
-  transform: translateY(-12px);
-  box-shadow: 0 25px 45px rgba(22, 101, 52, 0.15); /* Тінь з легким зеленим відтінком */
+  transform: translateY(-10px);
+  box-shadow: 0 25px 45px rgba(22, 101, 52, 0.15);
 }
 
 .specialty-card:active {
-  transform: scale(0.96);
+  transform: scale(0.97);
 }
 
-/* Блок з картинкою зверху */
-.specialty-card__image-container {
+.specialty-card__media {
   width: 100%;
-  height: 200px; /* Більше половини картки — це яскраве фото */
-  background: #f1f5f9;
+  height: 220px;
+  background-color: #f1f5f9;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  border-bottom: 4px solid #00a53f; /* Стильна зелена лінія розділення */
 }
 
 .specialty-card__image {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.5s ease; /* Плавний зум */
-}
-
-/* Ефект зуму картинки при наведенні на картку */
-.specialty-card:hover .specialty-card__image {
-  transform: scale(1.1);
 }
 
 .specialty-card__placeholder {
-  font-size: 5rem;
+  font-size: 4rem;
 }
 
-/* Текстовий блок знизу */
 .specialty-card__content {
-  padding: 20px;
-  flex: 1;
+  padding: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #ffffff;
+  flex: 1;
+  text-align: center;
 }
 
 .specialty-card__title {
   font-size: 1.4rem;
   font-weight: 800;
   color: #1e293b;
-  text-align: center;
   line-height: 1.3;
-  margin: 0;
-
-  /* Захист, якщо назва надто довга (обріже трьома крапками) */
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
 }
 
-/* =========================================
-   Індикатори завантаження та помилки
-   ========================================= */
-.specialties__loading,
-.specialties__error {
-  text-align: center;
-  padding: 50px;
-}
+/* ==========================================================================
+   Блок: specialty-modal (Модальне вікно опису спеціальності)
+   ========================================================================== */
 
-.specialties__spinner {
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #00a53f;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 20px;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-.specialties__loading-text {
-  font-size: 1.5rem;
-  color: #64748b;
-}
-
-.specialties__error-icon {
-  font-size: 4rem;
-  display: block;
-  margin-bottom: 10px;
-}
-
-.specialties__error-text {
-  font-size: 1.4rem;
-  color: #ef4444;
-  font-weight: 600;
-}
-
-/* =========================================
-   Внутрішнє модальне вікно (Стилізоване)
-   ========================================= */
-.specialty-modal {
+.specialty-modal__overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(15, 23, 42, 0.65);
-  backdrop-filter: blur(10px);
+  background-color: rgba(6, 78, 59, 0.75);
+  backdrop-filter: blur(8px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -314,14 +323,14 @@ onMounted(() => {
 }
 
 .specialty-modal__content {
-  background-color: #ffffff;
-  width: 85%;
-  max-width: 1000px;
-  max-height: 85vh;
-  border-radius: 30px;
-  padding: 50px;
+  background: #ffffff;
+  border-radius: 24px;
+  width: 90%;
+  max-width: 900px;
+  max-height: 80vh;
+  padding: 40px;
   position: relative;
-  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -329,111 +338,83 @@ onMounted(() => {
 
 .specialty-modal__close-btn {
   position: absolute;
-  top: 25px;
-  right: 25px;
+  top: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
   background: #f1f5f9;
   border: none;
-  border-radius: 30px;
-  padding: 12px 24px;
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: #475569;
+  font-size: 2rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #475569;
+  transition: all 0.15s ease;
 }
 
 .specialty-modal__close-btn:hover {
-  background: #ef4444;
-  color: #ffffff;
-  transform: scale(1.05);
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.specialty-modal__close-btn:active {
+  background: #cbd5e1;
+  transform: scale(0.92);
 }
 
 .specialty-modal__header {
-  margin-bottom: 30px;
-  border-bottom: 2px solid #f1f5f9;
-  padding-bottom: 20px;
+  margin-bottom: 25px;
+  padding-right: 40px;
 }
 
 .specialty-modal__title {
-  font-size: 2.5rem;
+  font-size: 2.2rem;
   font-weight: 800;
-  color: #1e293b;
-  line-height: 1.2;
-  margin: 0;
-  padding-right: 150px;
+  color: #166534;
+  line-height: 1.25;
 }
 
-.specialty-detail {
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
-}
-
-.specialty-detail__meta {
+.specialty-modal__meta {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 15px;
   background: #f0fdf4;
-  border-left: 8px solid #00a53f;
-  padding: 20px 30px;
-  border-radius: 0 20px 20px 0;
+  padding: 16px 20px;
+  border-radius: 16px;
+  border: 1px solid #bbf7d0;
+  margin-bottom: 25px;
 }
 
-.specialty-detail__meta-icon {
-  font-size: 2.5rem;
+.specialty-modal__meta-icon {
+  font-size: 2rem;
 }
 
-.specialty-detail__meta-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.specialty-detail__meta-label {
-  font-size: 1rem;
+.specialty-modal__meta-label {
+  display: block;
+  font-size: 0.95rem;
   font-weight: 700;
   color: #166534;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
-.specialty-detail__meta-value {
-  font-size: 1.6rem;
+.specialty-modal__meta-value {
+  font-size: 1.25rem;
   font-weight: 800;
-  color: #14532d;
-  margin-top: 4px;
+  color: #0f172a;
 }
 
-.specialty-detail__description-block {
-  background: #f8fafc;
-  padding: 35px;
-  border-radius: 25px;
-  border: 1px solid #e2e8f0;
-}
-
-.specialty-detail__description-title {
-  font-weight: 700;
-  color: #334155;
-  margin: 0 0 20px 0;
-  text-transform: uppercase;
+.specialty-modal__desc-title {
   font-size: 1.3rem;
-  letter-spacing: 0.5px;
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 12px;
 }
 
-.specialty-detail__description-text {
-  font-size: 1.4rem;
-  line-height: 1.7;
-  color: #334155;
-  margin: 0;
-  white-space: pre-line;
-  text-align: justify;
-}
-
-.submodal-fade-enter-active,
-.submodal-fade-leave-active {
-  transition: opacity 0.3s ease;
-}
-.submodal-fade-enter-from,
-.submodal-fade-leave-to {
-  opacity: 0;
+.specialty-modal__desc-text {
+  font-size: 1.2rem;
+  color: #475569;
+  line-height: 1.65;
 }
 </style>

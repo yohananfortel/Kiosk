@@ -1,30 +1,32 @@
 <template>
-  <div class="map-container">
-    <div class="sidebar">
-      <h3>Інформація</h3>
-      <p v-if="selectedRoom">Вибрано аудиторію: <strong>{{ selectedRoom }}</strong></p>
+  <div class="build-schema">
+    <div class="build-schema__sidebar">
+      <h3 class="build-schema__title">Інформація про аудиторію</h3>
+      <div v-if="roomInfo" class="build-schema__info-card">
+        <h4 class="build-schema__room-name">{{ roomInfo.name }}</h4>
+        <p v-if="roomInfo.description" class="build-schema__room-desc">{{ roomInfo.description }}</p>
 
-      <p v-else>Клікніть на аудиторію</p>
-
-      <hr />
-      <div v-if="roomInfo">
-        <h4>{{ roomInfo.name }}</h4>
-        <p>{{ roomInfo.description }}</p>
-
-        <div v-if="roomInfo.images && roomInfo.images.length" class="room-gallery">
+        <div v-if="roomInfo.images && roomInfo.images.length" class="build-schema__gallery">
           <img 
             v-for="(img, index) in roomInfo.images" 
             :key="index" 
             :src="img" 
-            class="room-image"
-            alt="Фото аудиторії"
+            class="build-schema__image"
+            :alt="roomInfo.name"
           />
+        </div>
       </div>
-     </div>
+      <div v-else class="build-schema__empty-state">
+        <svg class="build-schema__touch-svg" viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="#64748b" stroke-width="2">
+          <circle cx="12" cy="12" r="10" stroke-dasharray="3 3" />
+          <path d="M12 8v8M8 12h8" />
+        </svg>
+        <p class="build-schema__empty-hint">Оберіть будь-яку аудиторію на схемі, щоб переглянути фото та інформацію.</p>
+      </div>
     </div>
 
-    <div class="svg-wrapper">
-      <svg viewBox="0 0 500 500" class="interactive-map">
+    <div class="build-schema__viewport">
+      <svg viewBox="0 0 500 500" class="build-schema__map">
         
         <!-- Загальний контейнер будівлі для центрування -->
         <g transform="translate(100, 50)">
@@ -161,7 +163,7 @@
          value="audience15"
          style="stroke-width:0.264583"
          x="-55.885952"
-         y="181.47647">Аудиторія №11</tspan></text>
+         y="181.47647">Аудиторія №15</tspan></text>
     <text
        xml:space="preserve"
        style="font-weight:bold;font-size:4.23333px;font-family:Roboto;-inkscape-font-specification:'Roboto Bold';writing-mode:lr-tb;direction:ltr;fill:#24221c;stroke-width:0.264583"
@@ -174,7 +176,7 @@
          value="audience14"
          style="stroke-width:0.264583"
          x="-87.104362"
-         y="180.18555">Аудиторія №11</tspan></text>
+         y="180.18555">Аудиторія №14</tspan></text>
     <text
        xml:space="preserve"
        style="font-weight:bold;font-size:4.23333px;font-family:Roboto;-inkscape-font-specification:'Roboto Bold';writing-mode:lr-tb;direction:ltr;fill:#24221c;stroke-width:0.264583"
@@ -357,7 +359,7 @@
        x="151.29752"
        y="106.60956"
        id="room-text8"
-       values="audience8"><tspan
+       value="audience6"><tspan
          sodipodi:role="line"
          id="room-tspan8"
          value="audience6"
@@ -434,7 +436,8 @@
                   inkscape:label="1p aud q1" />
                 <rect
                   style="fill:#ffcc00;stroke-width:0.264583"
-                  id="room-room-конференц зала"
+                  id="room-conference"
+                  value="conference"
                   width="45.539421"
                   height="17.483883"
                   x="142.31067"
@@ -442,7 +445,8 @@
                   inkscape:label="1p zal" />
                 <rect
                     style="fill:#ffd42a;stroke-width:0.264583"
-                    id="room-rect15"
+                    id="room-library"
+                    value="library"
                     width="25.929157"
                     height="50.270836"
                     x="162.45418"
@@ -457,9 +461,11 @@
                     x="148.5463"
                     y="101.80851"
                     id="room-text12"
+                    value="conference"
                     inkscape:label="konf_zal"><tspan
                       sodipodi:role="line"
                       id="room-tspan12"
+                      value="conference"
                       style="fill:#2b0000;stroke-width:0.264583"
                       x="148.5463"
                       y="101.80851">Конференц. зала</tspan></text>
@@ -495,9 +501,11 @@
                         x="165.36459"
                         y="51.32917"
                         id="room-text15"
+                        value="library"
                           inkscape:label="text-library"><tspan
                             sodipodi:role="line"
                             id="room-tspan15"
+                            value="library"
                             style="fill:#000000;stroke-width:0.264583"
                             x="165.36459"
                             y="51.32917">Бібліотека</tspan></text>
@@ -513,132 +521,280 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed } from "vue";
 
-const selectedRoom = ref(null)
-const roomInfo = ref(null)
+const selectedRoom = ref(null);
+const roomInfo = ref(null);
 
 const classrooms = ref({
-  "audience1": {"name": "Аудиторія №1", "description": "", "images":["img/auditiry/1/1.jpg" , "img/auditiry/1/2.jpg"] },
-  "audience2": {"name": "Аудиторія №2", "description": "","images":["img/auditiry/2/1.jpg" , "img/auditiry/2/2.jpg"]},
-  "audience3": {"name": "Аудиторія №3", "description": "", "images":["img/auditiry/3/1.jpg" , "img/auditiry/3/2.jpg"]},
-  "audience4": {"name": "Аудиторія №4", "description": "", "images":["img/auditiry/4/1.jpg" , "img/auditiry/4/2.jpg"]},
-  "audience5": {"name": "Аудиторія №5", "description": "", "images":["img/auditiry/5/1.jpg" , "img/auditiry/5/2.jpg"]},
-  "audience6": {"name": "Аудиторія №6", "description": "", "images":["img/auditiry/6/1.jpg" , "img/auditiry/6/2.jpg"]},
-  "audience7": {"name": "Аудиторія №7", "description": "", "images":["img/auditiry/7/1.jpg" , "img/auditiry/7/2.jpg"]},
-  "audience8": {"name": "Аудиторія №8", "description": "", "images":["img/auditiry/8/1.jpg" , "img/auditiry/8/2.jpg"]},
-  "audience9": {"name": "Аудиторія №9", "description": "", "images":["img/auditiry/9/1.jpg" , "img/auditiry/9/2.jpg"]},
-  "audience10": {"name": "Аудиторія №10", "description": "", "images":["img/auditiry/10/1.jpg" , "img/auditiry/10/2.jpg"]},
+  audience1: {
+    name: "Аудиторія №1",
+    description: "Навчальна аудиторія першого поверху",
+    images: ["img/auditiry/1/1.jpg", "img/auditiry/1/2.jpg"],
+  },
+  audience2: {
+    name: "Аудиторія №2",
+    description: "Навчальна аудиторія першого поверху",
+    images: ["img/auditiry/2/1.jpg", "img/auditiry/2/2.jpg"],
+  },
+  audience3: {
+    name: "Аудиторія №3",
+    description: "Навчальна аудиторія другого поверху",
+    images: ["img/auditiry/3/1.jpg", "img/auditiry/3/2.jpg"],
+  },
+  audience4: {
+    name: "Аудиторія №4",
+    description: "Навчальна аудиторія другого поверху",
+    images: ["img/auditiry/4/1.jpg", "img/auditiry/4/2.jpg"],
+  },
+  audience5: {
+    name: "Аудиторія №5",
+    description: "Навчальна аудиторія другого поверху",
+    images: ["img/auditiry/5/1.jpg", "img/auditiry/5/2.jpg"],
+  },
+  audience6: {
+    name: "Аудиторія №6",
+    description: "Навчальна аудиторія другого поверху",
+    images: ["img/auditiry/6/1.jpg", "img/auditiry/6/2.jpg"],
+  },
+  audience7: {
+    name: "Аудиторія №7",
+    description: "Навчальна аудиторія другого поверху",
+    images: ["img/auditiry/7/1.jpg", "img/auditiry/7/2.jpg"],
+  },
+  audience8: {
+    name: "Аудиторія №8",
+    description: "Навчальна аудиторія другого поверху",
+    images: ["img/auditiry/8/1.jpg", "img/auditiry/8/2.jpg"],
+  },
+  audience9: {
+    name: "Аудиторія №9",
+    description: "Навчальна аудиторія другого поверху",
+    images: ["img/auditiry/9/1.jpg", "img/auditiry/9/2.jpg"],
+  },
+  audience10: {
+    name: "Аудиторія №10",
+    description: "Навчальна аудиторія другого поверху",
+    images: ["img/auditiry/10/1.jpg", "img/auditiry/10/2.jpg"],
+  },
+  audience11: {
+    name: "Аудиторія №11",
+    description: "Навчальна аудиторія третього поверху",
+    images: ["img/auditiry/11/1.jpg", "img/auditiry/11/2.jpg"],
+  },
+  audience11a: {
+    name: "Аудиторія №11a",
+    description: "Навчальна аудиторія третього поверху",
+    images: ["img/auditiry/11a/1.jpg", "img/auditiry/11a/2.jpg"],
+  },
+  audience12: {
+    name: "Аудиторія №12",
+    description: "Навчальна аудиторія третього поверху",
+    images: ["img/auditiry/12/1.jpg", "img/auditiry/12/2.jpg"],
+  },
+  audience13: {
+    name: "Аудиторія №13",
+    description: "Навчальна аудиторія третього поверху",
+    images: ["img/auditiry/13/1.jpg", "img/auditiry/13/2.jpg"],
+  },
+  audience14: {
+    name: "Аудиторія №14",
+    description: "Навчальна аудиторія третього поверху",
+    images: ["img/auditiry/14/1.jpg", "img/auditiry/14/2.jpg"],
+  },
+  audience15: {
+    name: "Аудиторія №15",
+    description: "Навчальна аудиторія третього поверху",
+    images: ["img/auditiry/15/1.jpg", "img/auditiry/15/2.jpg"],
+  },
+  audience16: {
+    name: "Аудиторія №16",
+    description: "Навчальна аудиторія третього поверху",
+    images: ["img/auditiry/16/1.jpg", "img/auditiry/16/2.jpg"],
+  },
+  act: {
+    name: "Актова зала",
+    description: "Актова зала коледжу для урочистих подій та конференцій",
+    images: ["img/auditiry/act/1.jpg", "img/auditiry/act/2.jpg"],
+  },
+  conference: {
+    name: "Конференц-зала",
+    description: "Зала для засідань, круглих столів та нарад",
+    images: [],
+  },
+  library: {
+    name: "Бібліотека",
+    description: "Бібліотечний фонд та читальний зал коледжу",
+    images: [],
+  },
+});
 
-  "audience11": {"name": "Аудиторія №11", "description": "", "images":["img/auditiry/11/1.jpg" , "img/auditiry/11/2.jpg"]},
-  "audience11a": {"name": "Аудиторія №11a", "description": "", "images":["img/auditiry/11a/1.jpg" , "img/auditiry/11a/2.jpg"]},
-
-  "audience12": {"name": "Аудиторія №12", "description": "", "images":["img/auditiry/12/1.jpg" , "img/auditiry/12/2.jpg"]},
-
-  "audience13": {"name": "Аудиторія №13", "description": "", "images":["img/auditiry/16/1.jpg" , "img/auditiry/16/2.jpg"]},
-  "audience14": {"name": "Аудиторія №12", "description": "", "images":["img/auditiry/13/1.jpg" , "img/auditiry/13/2.jpg"]},
-
-   "audience15": {"name": "Аудиторія №15", "description": "", "images":["img/auditiry/14/1.jpg" , "img/auditiry/14/2.jpg"]},
-
-  "act": {"name": "Актова зала", "description": "", "images":["img/auditiry/act/1.jpg" , "img/auditiry/act/2.jpg"]},
-
-
-}
-)
-
-// 1. Реактивний об'єкт з налаштуваннями ізометрії
+// Налаштування ізометрії
 const isoConfig = ref({
   scaleX: 1.65,
   scaleY: 0.85,
   rotate: -23,
-  floorGap: 120 // Відстань між поверхами по осі Y
-})
+  floorGap: 120,
+});
 
-// 2. Обчислювана властивість (computed), яка генерує рядок transform
 const isometricTransform = computed(() => {
-  return `scale(${isoConfig.value.scaleX}, ${isoConfig.value.scaleY}) rotate(${isoConfig.value.rotate})`
-})
+  return `scale(${isoConfig.value.scaleX}, ${isoConfig.value.scaleY}) rotate(${isoConfig.value.rotate})`;
+});
 
-// Обробник кліку для всіх поверхів
 const handleRoomClick = (event) => {
-  const target = event.target
-  
-  if (target && target.id && target.id.startsWith('room-')) {
-    selectedRoom.value = target.value || target.getAttribute('value') || target.id
-    
+  const target = event.target;
 
-    let classroomData = classrooms.value[selectedRoom.value]
+  if (target && target.id && target.id.startsWith("room-")) {
+    const rawVal = target.getAttribute("value") || target.value;
+    const roomKey = rawVal || target.id.replace(/^room-(room-|rect|text|tspan)?/, "");
+    selectedRoom.value = roomKey;
+
+    const classroomData = classrooms.value[roomKey];
 
     if (classroomData) {
-      // Зберігаємо весь об'єкт (в якому є і description, і images)
       roomInfo.value = classroomData;
     } else {
-      roomInfo.value = { 
-        name: "Невідома аудиторія", 
-        description: "Інформацію не знайдено", 
-        images: [] 
+      roomInfo.value = {
+        name: "Невідома аудиторія",
+        description: "Інформація оновлюється",
+        images: [],
       };
-    }    
+    }
   }
-}
+};
 </script>
 
 <style scoped>
-.map-container {
+/* ==========================================================================
+   Блок: build-schema (Схема будівлі та аудиторій)
+   Методологія: БЕМ
+   ========================================================================== */
+
+.build-schema {
   display: flex;
-  height: 100vh; /* Змінив на 100vh для зручності */
-  background-color: #f4f6f8;
-  font-family: sans-serif;
-}
-
-.sidebar {
-  width: 40%; /* Трохи розширив для повзунків */
-  padding: 10px;
-  background: white;
-  border-right: 1px solid #ddd;
-  overflow-y: auto;
-  padding-right: 60px;
-}
-
-/* Стилі для панелі керування */
-.controls {
-  margin-top: 20px;
-}
-.control-group {
-  margin-bottom: 15px;
-}
-.control-group label {
-  display: block;
-  font-size: 14px;
-  margin-bottom: 5px;
-  color: #333;
-}
-.control-group input[type="range"] {
   width: 100%;
-  cursor: pointer;
-}
-
-hr {
-  border: 0;
-  height: 1px;
-  background: #ddd;
-  margin: 20px 0;
-}
-
-.svg-wrapper {
-  flex: 1;
+  height: 75vh;
+  min-height: 550px;
+  background-color: #f8fafc;
+  border-radius: 20px;
   overflow: hidden;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
-.interactive-map {
+/* Сайдбар з інформацією про кабінет */
+.build-schema__sidebar {
+  width: 38%;
+  max-width: 420px;
+  min-width: 300px;
+  padding: 24px;
+  background: #ffffff;
+  border-right: 1px solid #e2e8f0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.build-schema__title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #166534;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.build-schema__info-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.build-schema__room-name {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin-top: 4px;
+}
+
+.build-schema__room-desc {
+  font-size: 1.1rem;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.build-schema__empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex: 1;
+  text-align: center;
+  padding: 24px;
+  background: #f8fafc;
+  border-radius: 16px;
+  border: 2px dashed #cbd5e1;
+}
+
+.build-schema__touch-svg {
+  color: #166534;
+}
+
+.build-schema__empty-hint {
+  font-size: 1.15rem;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.build-schema__gallery {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 10px;
+}
+
+.build-schema__image {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  object-fit: cover;
+}
+
+/* Вікно перегляду SVG карти */
+.build-schema__viewport {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 20px;
+}
+
+.build-schema__map {
   width: 100%;
   height: 100%;
+  max-height: 70vh;
+}
+
+/* Інтерактивні аудиторії на карті */
+:deep([id^="room-"]) {
+  cursor: pointer;
+  transition: opacity 0.15s ease, filter 0.15s ease;
+}
+
+:deep([id^="room-"]):hover {
+  filter: brightness(1.2);
+}
+
+:deep([id^="room-"]):active {
+  filter: brightness(0.8);
 }
 
 .floor-title {
   font-size: 24px;
   font-weight: bold;
-  fill: #555;
+  fill: #166534;
 }
 
 .floor-base {
@@ -646,32 +802,5 @@ hr {
   stroke: #cbd5e1;
   stroke-width: 2;
   filter: drop-shadow(5px 5px 0px #94a3b8);
-}
-
-.room-shape {
-  fill: #bae6fd;
-  stroke: #ffffff;
-  stroke-width: 3;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.room-shape:hover {
-  fill: #7dd3fc;
-  transform: translate(-3px, -3px);
-  filter: drop-shadow(3px 3px 2px rgba(0,0,0,0.2));
-}
-
-.room-shape.is-active {
-  fill: #f59e0b;
-  stroke: #b45309;
-  stroke-width: 4;
-}
-
-.room-gallery img {
-  width: 100%;
-  height: auto;
-  margin-top: 20px;
-  border-radius: 7px;
 }
 </style>

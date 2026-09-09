@@ -1,191 +1,153 @@
 <template>
-  <div class="news-container">
-    <h2 class="news-title">Останні новини</h2>
+  <div class="news">
+    <div class="news__header">
+      <h2 class="news__title">Останні новини коледжу</h2>
+    </div>
 
-    <div v-if="loading" class="loading-state">
-      <div class="spinner"></div>
+    <!-- Стан завантаження -->
+    <div v-if="loading && news.length === 0" class="news__state news__state--loading">
+      <div class="news__spinner"></div>
       <p>Завантаження новин...</p>
     </div>
 
-    <div v-else-if="error" class="error-state">
-      <svg
-        class="error-icon"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-        ></path>
+    <!-- Стан помилки -->
+    <div v-else-if="error && news.length === 0" class="news__state news__state--error">
+      <svg class="news__error-svg" viewBox="0 0 24 24" width="42" height="42" fill="none" stroke="#dc2626" stroke-width="2">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+        <line x1="12" y1="9" x2="12" y2="13" />
+        <line x1="12" y1="17" x2="12.01" y2="17" />
       </svg>
       <p>{{ error }}</p>
+      <button class="news__retry-btn" @click="fetchNews(true)">Спробувати знову</button>
     </div>
 
-    <div v-else class="news-grid">
-      <div v-for="post in news" :key="post.id" class="news-card">
-        <div class="news-card__image-container">
+    <!-- Сітка новин -->
+    <div v-else class="news__grid">
+      <div
+        v-for="post in news"
+        :key="post.id"
+        class="news-card"
+        @click="openModal(post)"
+      >
+        <div class="news-card__media">
           <img
             :src="getFeaturedImage(post)"
-            :alt="stripHtml(post.title.rendered)"
+            :alt="stripHtml(post.title?.rendered)"
             class="news-card__image"
             @error="handleImageError"
           />
           <div class="news-card__overlay"></div>
         </div>
+
         <div class="news-card__content">
           <div class="news-card__date">
-            <svg
-              class="date-icon"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-              ></path>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
             </svg>
-            {{ formatDate(post.date) }}
+            <span>{{ formatDate(post.date) }}</span>
           </div>
-          <h3 class="news-card__title" v-html="post.title.rendered"></h3>
-          <a href="#" @click.prevent="openModal(post)" class="news-card__link">
-            Читати далі
-            <svg
-              class="arrow-icon"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M14 5l7 7m0 0l-7 7m7-7H3"
-              ></path>
+          <h3 class="news-card__title" v-html="post.title?.rendered"></h3>
+          <span class="news-card__cta">Читати далі →</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Модальне вікно новини -->
+    <Transition name="fade">
+      <div
+        v-if="isModalOpen && selectedPost"
+        class="news-modal__overlay"
+        @click.self="closeModal"
+      >
+        <div class="news-modal__content">
+          <button class="news-modal__close-btn" @click="closeModal">&times;</button>
+
+          <div class="news-modal__date">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
             </svg>
-          </a>
+            <span>{{ formatDate(selectedPost.date) }}</span>
+          </div>
+
+          <div class="news-modal__header">
+            <img
+              v-if="getFeaturedImage(selectedPost)"
+              :src="getFeaturedImage(selectedPost)"
+              :alt="stripHtml(selectedPost.title?.rendered)"
+              class="news-modal__image"
+              @error="handleImageError"
+            />
+            <h3 class="news-modal__title" v-html="selectedPost.title?.rendered"></h3>
+          </div>
+
+          <div class="news-modal__body">
+            <div
+              class="news-modal__text"
+              v-html="selectedPost.content?.rendered || selectedPost.excerpt?.rendered"
+            ></div>
+          </div>
         </div>
       </div>
-    </div>
-
-    <!-- Модальне вікно -->
-    <div
-      v-if="isModalOpen && selectedPost"
-      class="modal-overlay"
-      @click="closeModal"
-    >
-      <div class="modal-content" @click.stop>
-        <button class="modal-close" @click="closeModal">
-          <svg
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"
-            ></path>
-          </svg>
-        </button>
-        <div class="modal-date">
-          <svg
-            class="date-icon"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-            ></path>
-          </svg>
-          {{ formatDate(selectedPost.date) }}
-        </div>
-        <div class="modal-header">
-          <img
-            v-if="getFeaturedImage(selectedPost) !== defaultImage"
-            :src="getFeaturedImage(selectedPost)"
-            :alt="stripHtml(selectedPost.title.rendered)"
-            class="modal-image"
-          />
-
-          <h3 v-html="selectedPost.title.rendered"></h3>
-        </div>
-        <div class="modal-body">
-          <div
-            class="modal-text"
-            v-html="
-              selectedPost.content?.rendered || selectedPost.excerpt?.rendered
-            "
-          ></div>
-        </div>
-      </div>
-    </div>
+    </Transition>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted } from "vue";
+import { fetchWithCache, getCachedData } from "../utils/cache";
 
 const news = ref([]);
 const loading = ref(true);
 const error = ref(null);
-
 const isModalOpen = ref(false);
 const selectedPost = ref(null);
+
+// Локальний вбудований SVG-плейсхолдер замість ненадійного via.placeholder.com
+const defaultPlaceholder =
+  'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="250" viewBox="0 0 400 250"><rect fill="%23e2e8f0" width="400" height="250"/><text fill="%2364748b" font-family="sans-serif" font-size="22" font-weight="bold" x="50%" y="50%" text-anchor="middle" dominant-baseline="middle">ОКСНАУ Новини</text></svg>';
 
 const openModal = (post) => {
   selectedPost.value = post;
   isModalOpen.value = true;
-  document.body.style.overflow = "hidden";
 };
 
 const closeModal = () => {
   isModalOpen.value = false;
   setTimeout(() => {
     selectedPost.value = null;
-  }, 300); // чекаємо завершення анімації
-  document.body.style.overflow = "";
+  }, 250);
 };
 
-// Очищення при знищенні компонента
-onUnmounted(() => {
-  document.body.style.overflow = "";
-});
-
-const defaultImage =
-  "https://via.placeholder.com/400x250/e2e8f0/4a5568?text=Фото+немає";
-
-const fetchNews = async () => {
+const fetchNews = async (forceRefresh = false) => {
   try {
     loading.value = true;
     error.value = null;
-    const response = await fetch(
-      "https://ocsnau.net/wp-json/wp/v2/news?_embed=true&per_page=6&order=desc&nocache=${new Date().getTime()}",
-    );
-    if (!response.ok) {
-      throw new Error("Помилка при завантаженні новин з сервера");
+
+    // Швидке завантаження з кешу
+    if (!forceRefresh) {
+      const cached = getCachedData("https://ocsnau.net/wp-json/wp/v2/news?_embed=true&per_page=6&order=desc", true);
+      if (cached && Array.isArray(cached) && cached.length > 0) {
+        news.value = cached;
+      }
     }
-    const data = await response.json();
-    news.value = data;
+
+    // Запит з TTL 30 хвилин та автоматичним офлайн-кешем
+    const endpoint = `https://ocsnau.net/wp-json/wp/v2/news?_embed=true&per_page=6&order=desc`;
+    const data = await fetchWithCache(endpoint, {}, 1000 * 60 * 30);
+    if (Array.isArray(data)) {
+      news.value = data;
+    }
   } catch (err) {
-    error.value =
-      err.message || "Не вдалося завантажити новини. Спробуйте пізніше.";
-    console.error("Помилка завантаження новин:", err);
+    if (news.value.length === 0) {
+      error.value = "Не вдалося завантажити новини. Будь ласка, перевірте зв'язок з сервером.";
+    }
+    console.error("[News] Помилка завантаження:", err);
   } finally {
     loading.value = false;
   }
@@ -193,34 +155,35 @@ const fetchNews = async () => {
 
 const getFeaturedImage = (post) => {
   if (
-    post._embedded &&
+    post?._embedded &&
     post._embedded["wp:featuredmedia"] &&
     post._embedded["wp:featuredmedia"][0]
   ) {
     const media = post._embedded["wp:featuredmedia"][0];
     if (media.media_details && media.media_details.sizes) {
-      // Спробуємо взяти зображення середнього або великого розміру для кращої оптимізації
       if (media.media_details.sizes.medium_large)
         return media.media_details.sizes.medium_large.source_url;
       if (media.media_details.sizes.large)
         return media.media_details.sizes.large.source_url;
     }
-    return media.source_url;
+    return media.source_url || defaultPlaceholder;
   }
-  return defaultImage;
+  return defaultPlaceholder;
 };
 
 const handleImageError = (e) => {
-  e.target.src = defaultImage;
+  e.target.src = defaultPlaceholder;
 };
 
 const stripHtml = (html) => {
+  if (!html) return "";
   const tmp = document.createElement("DIV");
   tmp.innerHTML = html;
   return tmp.textContent || tmp.innerText || "";
 };
 
 const formatDate = (dateString) => {
+  if (!dateString) return "";
   const options = { year: "numeric", month: "long", day: "numeric" };
   const date = new Date(dateString);
   return date.toLocaleDateString("uk-UA", options);
@@ -232,143 +195,135 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.news-container {
-  max-width: 1200px;
+/* ==========================================================================
+   Блок: news (Секція новин коледжу)
+   Методологія: БЕМ
+   ========================================================================== */
+
+.news {
+  width: 100%;
+  max-width: 1350px;
   margin: 0 auto;
-  padding: 40px 20px;
-  font-family:
-    "Inter",
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Roboto,
-    Oxygen,
-    Ubuntu,
-    Cantarell,
-    sans-serif;
+  padding: 20px;
+  font-family: system-ui, -apple-system, sans-serif;
 }
 
-.news-title {
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: #1a202c;
-  margin-bottom: 3rem;
+.news__header {
   text-align: center;
-  position: relative;
+  margin-bottom: 35px;
 }
 
-.news-title::after {
-  content: "";
-  display: block;
-  width: 60px;
-  height: 4px;
-  background: #3182ce;
-  margin: 10px auto 0;
-  border-radius: 2px;
+.news__title {
+  font-size: 2.6rem;
+  font-weight: 800;
+  color: #166534;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0;
 }
 
 /* Стани завантаження та помилки */
-.loading-state,
-.error-state {
+.news__state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 4rem 2rem;
+  padding: 60px 20px;
   text-align: center;
-  border-radius: 12px;
-  background-color: #f7fafc;
+  border-radius: 16px;
+  background-color: #f8fafc;
+  gap: 15px;
 }
 
-.loading-state p {
-  margin-top: 1rem;
-  font-size: 1.2rem;
-  color: #4a5568;
-  font-weight: 500;
+.news__state--loading {
+  color: #166534;
+  font-size: 1.3rem;
+  font-weight: 600;
 }
 
-.spinner {
-  width: 40px;
-  height: 40px;
+.news__spinner {
+  width: 48px;
+  height: 48px;
   border: 4px solid #e2e8f0;
-  border-top: 4px solid #3182ce;
+  border-top-color: #166534;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
 
-.error-state {
-  background-color: #fff5f5;
+.news__state--error {
+  color: #dc2626;
+  font-size: 1.2rem;
 }
 
-.error-icon {
-  width: 48px;
-  height: 48px;
-  color: #e53e3e;
-  margin-bottom: 1rem;
+.news__error-icon {
+  font-size: 2.5rem;
 }
 
-.error-state p {
-  color: #c53030;
+.news__retry-btn {
+  padding: 10px 24px;
   font-size: 1.1rem;
-  font-weight: 500;
+  font-weight: 700;
+  background-color: #166534;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
 }
 
 /* Сітка новин */
-.news-grid {
+.news__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-  gap: 2.5rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 30px;
 }
 
-/* Картка новини */
+@media (max-width: 1024px) {
+  .news__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ==========================================================================
+   Блок: news-card (Картка новини)
+   ========================================================================== */
+
 .news-card {
   background: #ffffff;
-  border-radius: 16px;
+  border-radius: 20px;
   overflow: hidden;
-  box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.05),
-    0 2px 4px -1px rgba(0, 0, 0, 0.03);
-  transition: all 0.3s ease;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
   display: flex;
   flex-direction: column;
-  border: 1px solid #edf2f7;
-  position: relative;
-  z-index: 1;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .news-card:hover {
   transform: translateY(-8px);
-  box-shadow:
-    0 20px 25px -5px rgba(0, 0, 0, 0.1),
-    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 20px 35px rgba(22, 101, 52, 0.12);
 }
 
-.news-card__image-container {
+.news-card:active {
+  transform: scale(0.98);
+}
+
+.news-card__media {
   width: 100%;
-  height: 220px;
-  overflow: hidden;
+  height: 200px;
   position: relative;
-  background-color: #e2e8f0;
+  background-color: #f1f5f9;
+  overflow: hidden;
 }
 
 .news-card__image {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-.news-card:hover .news-card__image {
-  transform: scale(1.08);
 }
 
 .news-card__overlay {
@@ -377,16 +332,11 @@ onMounted(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(
-    to bottom,
-    transparent 60%,
-    rgba(0, 0, 0, 0.1) 100%
-  );
-  pointer-events: none;
+  background: linear-gradient(to bottom, transparent 65%, rgba(0, 0, 0, 0.15) 100%);
 }
 
 .news-card__content {
-  padding: 1.75rem;
+  padding: 20px;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
@@ -395,263 +345,141 @@ onMounted(() => {
 .news-card__date {
   display: flex;
   align-items: center;
-  font-size: 0.85rem;
-  color: #718096;
-  margin-bottom: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.date-icon {
-  width: 16px;
-  height: 16px;
-  margin-right: 6px;
-  color: #a0aec0;
+  gap: 6px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #64748b;
+  margin-bottom: 10px;
 }
 
 .news-card__title {
-  font-size: 1.35rem;
-  font-weight: 700;
-  color: #1a202c;
-  margin: 0 0 1rem 0;
-  line-height: 1.3;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #1e293b;
+  line-height: 1.35;
+  margin-bottom: 15px;
+  flex-grow: 1;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-.news-card__title :deep(*) {
-  color: inherit;
-  text-decoration: none;
+.news-card__cta {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #166534;
+  margin-top: auto;
 }
 
-.news-card__excerpt {
-  font-size: 0.95rem;
-  color: #4a5568;
-  line-height: 1.6;
-  margin-bottom: 1.5rem;
-  flex-grow: 1;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
+/* ==========================================================================
+   Блок: news-modal (Модальне вікно новини)
+   ========================================================================== */
 
-.news-card__excerpt :deep(p) {
-  margin: 0;
-}
-
-.news-card__link {
-  align-self: flex-start;
-  display: inline-flex;
-  align-items: center;
-  padding: 0.6rem 1.2rem;
-  background-color: #f7fafc;
-  color: #3182ce;
-  text-decoration: none;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 0.9rem;
-  transition: all 0.2s ease;
-  border: 1px solid #e2e8f0;
-}
-
-.news-card__link:hover {
-  background-color: #3182ce;
-  color: white;
-  border-color: #3182ce;
-}
-
-.arrow-icon {
-  width: 16px;
-  height: 16px;
-  margin-left: 8px;
-  transition: transform 0.2s ease;
-}
-
-.news-card__link:hover .arrow-icon {
-  transform: translateX(4px);
-}
-
-@media (max-width: 768px) {
-  .news-grid {
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.5rem;
-  }
-
-  .news-title {
-    font-size: 2rem;
-    margin-bottom: 2rem;
-  }
-}
-
-/* Модальне вікно */
-.modal-overlay {
+.news-modal__overlay {
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.6);
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(6, 78, 59, 0.75);
+  backdrop-filter: blur(8px);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  padding: 20px;
-  animation: fadeIn 0.3s ease;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.modal-content {
-  background: white;
-  border-radius: 16px;
-  width: 100%;
-  max-width: 80vw;
-  max-height: 90vh;
-  overflow-y: auto;
+.news-modal__content {
+  background: #ffffff;
+  border-radius: 24px;
+  width: 90%;
+  max-width: 1100px;
+  height: 85vh;
+  padding: 40px;
   position: relative;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  animation: slideUp 0.3s ease;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 
-@keyframes slideUp {
-  from {
-    transform: translateY(20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-.modal-close {
+.news-modal__close-btn {
   position: absolute;
-  top: 15px;
-  right: 15px;
-  background: #f7fafc;
-  border: none;
+  top: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: #f1f5f9;
+  border: none;
+  font-size: 2rem;
   cursor: pointer;
-  color: #4a5568;
-  transition: all 0.2s ease;
-  z-index: 10;
-}
-
-.modal-close:hover {
-  background: #edf2f7;
-  color: #1a202c;
-  transform: scale(1.05);
-}
-
-.modal-close svg {
-  width: 24px;
-  height: 24px;
-}
-
-.modal-header {
-  display: flex;
-  padding: 30px 40px 20px;
-  border-bottom: 1px solid #edf2f7;
-  flex-wrap: nowrap;
-  flex-direction: row;
-  justify-content: center;
-  align-content: center;
-  align-items: flex-start;
-}
-
-.modal-header h3 {
-  font-size: 3em;
-  font-weight: 800;
-  color: #1a202c;
-  margin: 0 0 10px 0;
-  line-height: 1.3;
-  padding-right: 40px;
-}
-
-.modal-date {
   display: flex;
   align-items: center;
-  font-size: 0.9rem;
-  color: #718096;
-  font-weight: 600;
-  width: 100%;
+  justify-content: center;
+  color: #475569;
+  transition: background-color 0.2s, transform 0.1s;
 }
 
-.modal-body {
-  padding: 30px 40px;
+.news-modal__close-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
 }
 
-.modal-image {
-  width: auto;
-  max-height: 400px;
-  /* object-fit: scale-down; */
-  border-radius: 12px;
+.news-modal__close-btn:active {
+  background: #cbd5e1;
+  transform: scale(0.92);
+}
+
+.news-modal__date {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #64748b;
+  margin-bottom: 15px;
+}
+
+.news-modal__header {
   margin-bottom: 25px;
-  margin-right: 20px;
 }
 
-.modal-text {
-  font-size: 1.05rem;
-  color: #2d3748;
+.news-modal__image {
+  width: 100%;
+  max-height: 420px;
+  object-fit: cover;
+  border-radius: 16px;
+  margin-bottom: 20px;
+}
+
+.news-modal__title {
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.25;
+}
+
+.news-modal__body {
+  font-size: 1.25rem;
+  color: #334155;
   line-height: 1.7;
-  word-wrap: break-word;
 }
 
-.modal-text :deep(p) {
-  margin-bottom: 1.5rem;
+.news-modal__text :deep(p) {
+  margin-bottom: 1.2rem;
 }
 
-.modal-text :deep(img) {
+.news-modal__text :deep(img) {
   max-width: 100%;
   height: auto;
-  border-radius: 8px;
-  display: block !important;
-  margin: 1.5rem auto !important;
+  border-radius: 12px;
+  margin: 15px 0;
 }
 
-.modal-text :deep(a) {
-  color: #3182ce;
-  text-decoration: underline;
-}
-
-.modal-text :deep(iframe) {
-  max-width: 100%;
-}
-
-.modal-text :deep(figure) {
-  margin: 0;
-}
-
-@media (max-width: 640px) {
-  .modal-overlay {
-    padding: 10px;
-  }
-  .modal-header {
-    padding: 20px 20px 15px;
-  }
-  .modal-header h3 {
-    font-size: 3em;
-  }
-  .modal-body {
-    padding: 20px;
-  }
+/* Запобігаємо відкриттю сторонніх сайтів на кіоску */
+.news-modal__text :deep(a) {
+  color: inherit !important;
+  text-decoration: none !important;
+  pointer-events: none !important;
+  cursor: default !important;
 }
 </style>

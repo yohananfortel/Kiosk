@@ -1,35 +1,43 @@
 <template>
-  <div class="abiturient-menu">
-    <div class="abiturient-menu__grid">
+  <div class="applicant-menu">
+    <div class="applicant-menu__grid">
       <div
         v-for="item in menuItemsAbit"
         :key="item.id"
-        class="abiturient-menu__card"
+        class="applicant-card"
         :style="{ backgroundColor: item.color || '#00a53f' }"
         @click="openModal(item)"
       >
-        <div class="abiturient-menu__icon-wrapper">
+        <div class="applicant-card__media">
           <img
             :src="item.image"
             :alt="item.title"
-            class="abiturient-menu__image"
+            class="applicant-card__image"
           />
         </div>
-        <h3 class="abiturient-menu__title">{{ item.title }}</h3>
+        <h3 class="applicant-card__title">{{ item.title }}</h3>
       </div>
     </div>
 
+    <!-- Модальне вікно для карти вступника або спеціальностей -->
     <Transition name="fade">
-      <div v-if="isModalOpen" class="modal-overlay" @click.self="closeModal">
-        <div class="modal-content">
-          <button class="close-btn" @click="closeModal">&times;</button>
+      <div
+        v-if="isModalOpen"
+        class="applicant-modal__overlay"
+        @click.self="closeModal"
+      >
+        <div class="applicant-modal__content">
+          <button class="applicant-modal__close-btn" @click="closeModal">&times;</button>
 
           <component :is="activeComponent" v-if="activeComponent" />
 
-          <div v-else class="modal-empty-state">
-            <h2 class="modal-empty-title">
+          <div v-else class="applicant-modal__empty">
+            <h2 class="applicant-modal__empty-title">
               Розділ "{{ currentTitle }}" знаходиться у розробці
             </h2>
+            <p class="applicant-modal__empty-desc">
+              Актуальні обсяги держзамовлення оновлюються приймальною комісією.
+            </p>
           </div>
         </div>
       </div>
@@ -73,51 +81,53 @@ const openModal = (item) => {
   currentTitle.value = item.title;
   activeComponent.value = item.component || null;
   isModalOpen.value = true;
-  document.body.style.overflow = "hidden";
 };
 
 const closeModal = () => {
   isModalOpen.value = false;
   activeComponent.value = null;
-  document.body.style.overflow = "auto";
 };
+
+defineExpose({
+  closeModal,
+  isModalOpen,
+});
 </script>
 
 <style scoped>
-/* =========================================
-   Блок: abiturient-menu (Меню абітурієнта)
+/* ==========================================================================
+   Блок: applicant-menu (Меню для абітурієнтів)
    Методологія: БЕМ
-   ========================================= */
+   ========================================================================== */
 
-.abiturient-menu {
+.applicant-menu {
   width: 100%;
-  /* Змушуємо контейнер зайняти всю висоту батьківського вікна модалки */
-  min-height: 70vh;
+  min-height: 65vh;
   display: flex;
-  /* Ідеальне центрування по вертикалі та горизонталі */
   justify-content: center;
   align-items: center;
   padding: 20px;
-  box-sizing: border-box;
+  font-family: system-ui, -apple-system, sans-serif;
 }
 
-/* Елемент: Контейнер сітки (Симетрія 3-х карток) */
-.abiturient-menu__grid {
+.applicant-menu__grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 40px; /* Фіксований відступ між плитками */
-  justify-content: center; /* Рівняє картки строго по центру рядка */
+  gap: 35px;
+  justify-content: center;
   align-items: center;
-  width: 100%;
-  max-width: 1150px; /* Обмеження, щоб 3 картки красиво ставали в один ряд */
+  max-width: 1200px;
   margin: 0 auto;
 }
 
-/* Елемент: Картка */
-.abiturient-menu__card {
-  width: 320px;
-  height: 320px;
-  border-radius: 20px;
+/* ==========================================================================
+   Блок: applicant-card (Картка меню абітурієнта)
+   ========================================================================== */
+
+.applicant-card {
+  width: 350px;
+  height: 310px;
+  border-radius: 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -126,80 +136,72 @@ const closeModal = () => {
   cursor: pointer;
   padding: 30px;
   text-align: center;
-  box-sizing: border-box;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-
-  /* Анімація підстрибування */
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
 }
 
-.abiturient-menu__card:hover {
-  transform: translateY(-15px);
-  box-shadow: 0 25px 40px rgba(0, 0, 0, 0.25);
+.applicant-card:hover {
+  transform: translateY(-12px);
+  box-shadow: 0 25px 45px rgba(0, 0, 0, 0.22);
 }
 
-.abiturient-menu__card:active {
-  transform: scale(0.95);
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+.applicant-card:active {
+  transform: scale(0.96);
 }
 
-/* Елемент: Обертка іконки */
-.abiturient-menu__icon-wrapper {
+.applicant-card__media {
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 20px;
-  height: 120px;
+  height: 110px;
 }
 
-/* Елемент: PNG Зображення (Ефект чисто-білого кольору) */
-.abiturient-menu__image {
-  max-width: 110px;
-  max-height: 110px;
+.applicant-card__image {
+  max-width: 100px;
+  max-height: 100px;
   object-fit: contain;
   filter: brightness(0) invert(1);
 }
 
-/* Елемент: Текст назви плитки */
-.abiturient-menu__title {
-  font-size: 2.4rem;
-  font-weight: bold;
+.applicant-card__title {
+  font-size: 2.2rem;
+  font-weight: 800;
   line-height: 1.2;
   margin: 0;
 }
 
-/* =========================================
-   Стилі для модального вікна (Твої рідні)
-   ========================================= */
-.modal-overlay {
+/* ==========================================================================
+   Блок: applicant-modal (Модальне вікно)
+   ========================================================================== */
+
+.applicant-modal__overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(6, 78, 59, 0.7);
+  background-color: rgba(6, 78, 59, 0.75);
   backdrop-filter: blur(8px);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 1050;
 }
 
-.modal-content {
+.applicant-modal__content {
   background-color: #ffffff;
-  width: 95%;
+  width: 92%;
   max-width: 1400px;
-  height: 90vh;
-  border-radius: 20px;
-  padding: 40px;
+  height: 88vh;
+  border-radius: 24px;
+  padding: 35px;
   position: relative;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
   overflow-y: auto;
 }
 
-.close-btn {
+.applicant-modal__close-btn {
   position: absolute;
   top: 20px;
   right: 20px;
@@ -213,22 +215,41 @@ const closeModal = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 100;
+  color: #475569;
+  z-index: 10;
+  transition: background-color 0.2s, color 0.2s;
 }
 
-.modal-empty-state {
-  padding: 4rem;
+.applicant-modal__close-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.applicant-modal__close-btn:active {
+  background: #cbd5e1;
+  transform: scale(0.92);
+}
+
+.applicant-modal__empty {
+  padding: 60px 20px;
   text-align: center;
 }
 
-.modal-empty-title {
-  font-size: 2rem;
-  font-weight: bold;
+.applicant-modal__empty-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #166534;
+  margin-bottom: 12px;
+}
+
+.applicant-modal__empty-desc {
+  font-size: 1.3rem;
+  color: #64748b;
 }
 
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.3s;
+  transition: opacity 0.25s ease;
 }
 .fade-enter-from,
 .fade-leave-to {

@@ -11,6 +11,16 @@ export default defineConfig({
     vueDevTools(),
   ],
   base: '/kiosk/', // Важливо: додає префікс до всіх шляхів
+  server: {
+    proxy: {
+      '/api-ocsnau': {
+        target: 'https://ocsnau.net',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/api-ocsnau/, ''),
+      },
+    },
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))

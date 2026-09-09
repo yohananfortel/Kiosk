@@ -1,20 +1,19 @@
 <template>
-  <div class="shelter-page">
-    <header class="shelter-page__header">
-      <h2 class="shelter-page__main-title">Схема укриття</h2>
-      <p class="shelter-page__subtitle">
+  <div class="shelter">
+    <header class="shelter__header">
+      <h2 class="shelter__title">Схема укриття</h2>
+      <p class="shelter__subtitle">
         План евакуації та розташування безпечних зон коледжу
       </p>
     </header>
 
-    <div class="shelter-page__content">
-      <div class="shelter-page__map-wrapper">
+    <div class="shelter__content">
+      <div class="shelter__map-wrap">
         <svg
           viewBox="160 160 900 450"
           preserveAspectRatio="xMidYMid meet"
-          class="isometric-svg"
+          class="shelter__svg"
         >
-          >
           <sodipodi:namedview
             id="namedview1"
             pagecolor="#ffffff"
@@ -206,8 +205,7 @@
                   font-variant: normal;
                   font-weight: normal;
                   font-stretch: normal;
-                  font-family: Times &quot;New Romanquot&quot;;
-                  -inkscape-font-specification: &quot;Times Roman, Italic;&quot;;
+                  font-family: 'Times New Roman', serif;
                   fill: #000000;
                   fill-opacity: 1;
                   stroke-width: 2.87019;
@@ -599,115 +597,73 @@
 </script>
 
 <style scoped>
-/* =========================================
-   Блок: shelter-page (Страница укрытия)
-   Методология: БЕМ
-   ========================================= */
+/* ==========================================================================
+   Блок: shelter (Схема укриття)
+   Методологія: БЕМ
+   ========================================================================== */
 
-.shelter-page {
+.shelter {
   width: 100%;
   min-height: 70vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px 20px 40px;
+  padding: 20px;
   box-sizing: border-box;
-  font-family:
-    system-ui,
-    -apple-system,
-    sans-serif;
+  font-family: system-ui, -apple-system, sans-serif;
 }
 
-.shelter-page__header {
+.shelter__header {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 24px;
 }
 
-.shelter-page__main-title {
-  font-size: 3rem;
+.shelter__title {
+  font-size: 2.8rem;
   font-weight: 800;
   color: #166534;
   text-transform: uppercase;
   letter-spacing: 1px;
-  margin: 0 0 10px 0;
+  margin: 0 0 8px 0;
 }
 
-.shelter-page__subtitle {
-  font-size: 1.35rem;
+.shelter__subtitle {
+  font-size: 1.3rem;
   color: #64748b;
   margin: 0;
 }
 
-/* =========================================
-   Элемент: Контейнер-планшет
-   ========================================= */
-.shelter-page__content {
+.shelter__content {
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
-  max-width: 1400px;
+  max-width: 1350px;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
-  border-radius: 30px;
-  padding: 30px;
+  border-radius: 28px;
+  padding: 24px;
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
-  box-sizing: border-box;
 }
 
-/* =========================================
-   Элемент: Рамка вокруг твоей карты (выровнена по центру)
-   ========================================= */
-.shelter-page__map-wrapper {
+.shelter__map-wrap {
   width: 100%;
   background: #ffffff;
   border-radius: 20px;
   overflow: hidden;
   border: 2px solid #e2e8f0;
   box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.03);
-  margin-bottom: 30px;
   display: flex;
-  justify-content: center; /* Центрирует контент по горизонтали */
-  align-items: center; /* Центрирует контент по вертикали */
+  justify-content: center;
+  align-items: center;
   padding: 10px;
 }
 
-/* Магия для идеального центрирования и масштаба SVG */
-:deep(.isometric-svg) {
-  max-width: 100%; /* Позволяет карте быть меньше рамки, но не вылезать за края */
+.shelter__svg {
+  max-width: 100%;
   height: auto;
-  max-height: 55vh;
+  max-height: 60vh;
   display: block;
-  margin: 0 auto; /* Строгое выравнивание по центру */
-}
-
-/* =========================================
-   Элемент: Информационные плашки безопасности
-   ========================================= */
-.shelter-page__info {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 30px;
-  justify-content: center;
-  width: 100%;
-}
-
-.shelter-page__info-item {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #ffffff;
-  padding: 15px 30px;
-  border-radius: 20px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
-  border-left: 6px solid #ef4444;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.shelter-page__info-item:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+  margin: 0 auto;
 }
 </style>
