@@ -689,6 +689,19 @@ onUnmounted(() => {
   if (clockInterval) clearInterval(clockInterval);
   if (autoRefreshInterval) clearInterval(autoRefreshInterval);
 });
+
+const resetToDefault = () => {
+  selectedGroup.value = 'all';
+  selectedCourse.value = 'all';
+  selectedDay.value = getDefaultDay();
+  if (document.activeElement && document.activeElement.blur) {
+    document.activeElement.blur();
+  }
+};
+
+defineExpose({
+  resetToDefault
+});
 </script>
 
 <style scoped>

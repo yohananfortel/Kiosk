@@ -7,23 +7,67 @@ import VstupnaKampania from "./components/VstupnaKampania.vue";
 const currentPage = ref(1);
 const totalPages = 3;
 
+const scheduleRef = ref(null);
 const welcomeRef = ref(null);
 const campaignRef = ref(null);
 
 const idleTimeout = ref(null);
-const IDLE_TIME = 90000; // 90 секунд бездіяльності до повернення на головну
+const IDLE_TIME = 25000; // 25 секунд бездіяльності до появи вікна
+const COUNTDOWN_TIME = 10; // 10 секунд на підтвердження
+
+const showInactivityModal = ref(false);
+const countdown = ref(COUNTDOWN_TIME);
+let countdownInterval = null;
 
 const resetIdleTimer = () => {
+  if (showInactivityModal.value) return;
+
   if (idleTimeout.value) clearTimeout(idleTimeout.value);
 
   idleTimeout.value = setTimeout(() => {
-    // При таймауті:
-    // 1. Повертаємося на головний екран
-    currentPage.value = 1;
-    // 2. Закриваємо відкриті модалки
-    if (welcomeRef.value?.closeModal) welcomeRef.value.closeModal();
-    if (campaignRef.value?.closeModal) campaignRef.value.closeModal();
+    triggerInactivityModal();
   }, IDLE_TIME);
+};
+
+const triggerInactivityModal = () => {
+  // На першій сторінці (розклад) тихо скидаємо фільтри, без вікна
+  if (currentPage.value === 1) {
+    if (scheduleRef.value?.resetToDefault) {
+      scheduleRef.value.resetToDefault();
+    }
+    // І починаємо відлік 25с знову
+    resetIdleTimer();
+    return;
+  }
+
+  showInactivityModal.value = true;
+  countdown.value = COUNTDOWN_TIME;
+  
+  if (countdownInterval) clearInterval(countdownInterval);
+  
+  countdownInterval = setInterval(() => {
+    countdown.value--;
+    if (countdown.value <= 0) {
+      clearInterval(countdownInterval);
+      handleInactivityTimeout();
+    }
+  }, 1000);
+};
+
+const handleInactivityTimeout = () => {
+  if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+  showInactivityModal.value = false;
+  currentPage.value = 1;
+  if (welcomeRef.value?.closeModal) welcomeRef.value.closeModal();
+  if (campaignRef.value?.closeModal) campaignRef.value.closeModal();
+  if (scheduleRef.value?.resetToDefault) scheduleRef.value.resetToDefault();
+  resetIdleTimer();
+};
+
+const confirmPresence = () => {
+  showInactivityModal.value = false;
+  if (countdownInterval) clearInterval(countdownInterval);
+  resetIdleTimer();
 };
 
 const touchStartX = ref(0);
@@ -36,12 +80,14 @@ const isAnyModalOpen = () => {
 };
 
 const handleTouchStart = (e) => {
+  if (showInactivityModal.value) return;
   touchStartX.value = e.changedTouches[0].screenX;
   touchStartY.value = e.changedTouches[0].screenY;
   resetIdleTimer();
 };
 
 const handleTouchEnd = (e) => {
+  if (showInactivityModal.value) return;
   touchEndX.value = e.changedTouches[0].screenX;
   touchEndY.value = e.changedTouches[0].screenY;
   handleSwipe();
@@ -88,6 +134,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   if (idleTimeout.value) clearTimeout(idleTimeout.value);
+  if (countdownInterval) clearInterval(countdownInterval);
   window.removeEventListener("pointerdown", resetIdleTimer);
   window.removeEventListener("touchstart", resetIdleTimer);
   window.removeEventListener("click", blockAllLinks, { capture: true });
@@ -129,7 +176,7 @@ onUnmounted(() => {
           'kiosk__page--left': currentPage > 1,
         }"
       >
-        <Schedule class="kiosk__page-content" />
+        <Schedule ref="scheduleRef" class="kiosk__page-content" />
       </div>
 
       <div
@@ -153,6 +200,17 @@ onUnmounted(() => {
         <VstupnaKampania ref="campaignRef" class="kiosk__page-content" />
       </div>
     </div>
+
+    <!-- Вікно неактивності -->
+    <Transition name="fade">
+      <div v-if="showInactivityModal" class="inactivity-modal">
+        <div class="inactivity-modal__content">
+          <h2 class="inactivity-modal__title">Ви ще тут?</h2>
+          <p class="inactivity-modal__text">Повернення на головний екран через <strong>{{ countdown }}</strong> сек.</p>
+          <button class="inactivity-modal__btn" @click="confirmPresence">Так, я тут</button>
+        </div>
+      </div>
+    </Transition>
 
     <div class="kiosk__dots">
       <button
@@ -398,6 +456,68 @@ a:focus {
 }
 
 /* Загальні анімації появи */
+/* ==========================================================================
+   Вікно неактивності
+   ========================================================================== */
+.inactivity-modal {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(6, 78, 59, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.inactivity-modal__content {
+  background: #ffffff;
+  padding: 50px 70px;
+  border-radius: 24px;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+  max-width: 600px;
+}
+
+.inactivity-modal__title {
+  font-size: 3rem;
+  color: #064e3b;
+  margin-bottom: 20px;
+  font-weight: 800;
+}
+
+.inactivity-modal__text {
+  font-size: 1.8rem;
+  color: #334155;
+  margin-bottom: 40px;
+}
+
+.inactivity-modal__text strong {
+  color: #e11d48;
+  font-size: 2.2rem;
+}
+
+.inactivity-modal__btn {
+  background-color: #00a53f;
+  color: white;
+  border: none;
+  padding: 20px 50px;
+  font-size: 2rem;
+  font-weight: 700;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: transform 0.2s, background-color 0.2s;
+  box-shadow: 0 8px 20px rgba(0, 165, 63, 0.3);
+}
+
+.inactivity-modal__btn:active {
+  transform: scale(0.95);
+  background-color: #008f36;
+}
+
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.25s ease;
