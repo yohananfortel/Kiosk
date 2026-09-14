@@ -20,6 +20,22 @@
         </div>
 
         <button
+          class="schedule__info-btn"
+          title="Інша інформація"
+          @click="emit('open-info')"
+        >
+          Інша інформація
+        </button>
+
+        <button
+          class="schedule__info-btn schedule__main-btn"
+          title="На головний екран"
+          @click="emit('open-main')"
+        >
+          На головний екран
+        </button>
+
+        <button
           class="schedule__refresh-btn"
           :disabled="loading"
           title="Оновити розклад"
@@ -447,6 +463,8 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import * as XLSX from 'xlsx';
 import { getCachedData, setCachedData, fetchWithCache } from '../utils/cache';
 
+const emit = defineEmits(['open-info', 'open-main']);
+
 // --- Константи ---
 const daysInWeek = ["Неділя", "Понеділок", "Вівторок", "Середа", "Четвер", "Пʼятниця", "Субота"];
 const workDays = ["Понеділок", "Вівторок", "Середа", "Четвер", "Пʼятниця"];
@@ -800,6 +818,28 @@ defineExpose({
   font-weight: 600;
   color: #475569;
   text-transform: capitalize;
+}
+
+.schedule__info-btn {
+  background: #16a34a;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 20px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 10px rgba(22, 163, 74, 0.2);
+}
+
+.schedule__info-btn:active {
+  transform: scale(0.95);
+}
+
+.schedule__main-btn {
+  background: #0284c7;
+  box-shadow: 0 4px 10px rgba(2, 132, 199, 0.2);
 }
 
 .schedule__refresh-btn {

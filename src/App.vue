@@ -2,7 +2,7 @@
 import { ref, onMounted, onUnmounted } from "vue";
 import Schedule from "./components/Schedule.vue";
 import WellcomeToTheCollege from "./components/WellcomeToTheCollege.vue";
-import VstupnaKampania from "./components/VstupnaKampania.vue";
+import MainPage from "./components/MainPage.vue";
 
 const currentPage = ref(1);
 const totalPages = 3;
@@ -59,7 +59,6 @@ const handleInactivityTimeout = () => {
   showInactivityModal.value = false;
   currentPage.value = 1;
   if (welcomeRef.value?.closeModal) welcomeRef.value.closeModal();
-  if (campaignRef.value?.closeModal) campaignRef.value.closeModal();
   if (scheduleRef.value?.resetToDefault) scheduleRef.value.resetToDefault();
   resetIdleTimer();
 };
@@ -76,7 +75,7 @@ const touchEndX = ref(0);
 const touchEndY = ref(0);
 
 const isAnyModalOpen = () => {
-  return Boolean(welcomeRef.value?.isModalOpen || campaignRef.value?.isModalOpen);
+  return Boolean(welcomeRef.value?.isModalOpen);
 };
 
 const handleTouchStart = (e) => {
@@ -146,9 +145,9 @@ onUnmounted(() => {
   <div class="kiosk-bar"></div>
 
   <div class="kiosk" @touchstart="handleTouchStart" @touchend="handleTouchEnd">
-    <header
+    <header v-if="currentPage !== 1"
       class="kiosk__header"
-      :class="{ 'kiosk__header--compact': currentPage !== 2 }"
+      :class="{ 'kiosk__header--compact': currentPage !== 3 }"
     >
       <div class="kiosk__logo-box">
         <img
@@ -160,7 +159,7 @@ onUnmounted(() => {
       </div>
 
       <Transition name="fade">
-        <div v-if="currentPage === 2" class="kiosk__hero">
+        <div v-if="currentPage === 3" class="kiosk__hero">
           <h1 class="kiosk__hero-title">
             <span class="kiosk__hero-highlight">Весь коледж на одному екрані</span>
           </h1>
@@ -176,7 +175,7 @@ onUnmounted(() => {
           'kiosk__page--left': currentPage > 1,
         }"
       >
-        <Schedule ref="scheduleRef" class="kiosk__page-content" />
+        <MainPage class="kiosk__page-content" @open-schedule="currentPage = 2" />
       </div>
 
       <div
@@ -187,17 +186,18 @@ onUnmounted(() => {
           'kiosk__page--right': currentPage < 2,
         }"
       >
-        <WellcomeToTheCollege ref="welcomeRef" class="kiosk__page-content" />
+        <Schedule ref="scheduleRef" class="kiosk__page-content" @open-info="currentPage = 3" @open-main="currentPage = 1" />
       </div>
 
       <div
         class="kiosk__page"
         :class="{
           'kiosk__page--active': currentPage === 3,
+          'kiosk__page--left': currentPage > 3,
           'kiosk__page--right': currentPage < 3,
         }"
       >
-        <VstupnaKampania ref="campaignRef" class="kiosk__page-content" />
+        <WellcomeToTheCollege ref="welcomeRef" class="kiosk__page-content" />
       </div>
     </div>
 
@@ -212,23 +212,17 @@ onUnmounted(() => {
       </div>
     </Transition>
 
-    <div class="kiosk__dots">
-      <button
-        class="kiosk__dot"
-        :class="{ 'kiosk__dot--active': currentPage === 1 }"
-        aria-label="Розклад"
-        @click="currentPage = 1"
-      ></button>
+    <div class="kiosk__dots" v-if="currentPage !== 1">
       <button
         class="kiosk__dot"
         :class="{ 'kiosk__dot--active': currentPage === 2 }"
-        aria-label="Головна сторінка"
+        aria-label="Розклад"
         @click="currentPage = 2"
       ></button>
       <button
         class="kiosk__dot"
         :class="{ 'kiosk__dot--active': currentPage === 3 }"
-        aria-label="Вступна кампанія"
+        aria-label="Головна сторінка"
         @click="currentPage = 3"
       ></button>
     </div>
@@ -327,13 +321,13 @@ a:focus {
 .kiosk__header {
   width: 100%;
   display: grid;
-  grid-template-columns: 220px 1fr;
+  grid-template-columns: 280px 1fr;
   align-items: center;
   transition: all 0.3s ease;
 }
 
 .kiosk__header--compact {
-  height: 90px;
+  height: 130px;
 }
 
 .kiosk__logo-box {
@@ -342,7 +336,7 @@ a:focus {
 }
 
 .kiosk__logo-image {
-  height: 85px;
+  height: 130px;
   max-width: 100%;
   object-fit: contain;
   transition: height 0.3s ease;

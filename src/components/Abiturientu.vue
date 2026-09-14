@@ -49,6 +49,7 @@
 import { ref, shallowRef } from "vue";
 import AbiturientMap from "./AbiturientMap.vue";
 import Speciality from "./Speciality.vue";
+import AdmissionDates from "./AdmissionDates.vue";
 
 const isModalOpen = ref(false);
 const activeComponent = shallowRef(null);
@@ -71,8 +72,9 @@ const menuItemsAbit = ref([
   },
   {
     id: 3,
-    title: "Державне замовлення",
+    title: "Терміни кампанії",
     color: "#00a53f",
+    component: AdmissionDates,
     image: "img/derjavnezamovlena.png",
   },
 ]);
