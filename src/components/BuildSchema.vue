@@ -55,7 +55,7 @@
     <rect
        style="fill:#ffcc00;stroke-width:0.264583"
        id="room-rect3"
-       value="audience11a"
+       value="audience12"
        width="42.643826"
        height="12.913271"
        x="21.922531"
@@ -94,14 +94,6 @@
        x="71.473457"
        y="78.380554"
        ry="0" />
-    <rect
-       style="fill:#ffcc00;stroke-width:0.264583"
-       id="room-rect6"
-       value="audience12"
-       width="45.346607"
-       height="14.715123"
-       x="143.84784"
-       y="96.999687" /> 
 
            <text
        xml:space="preserve"
@@ -478,7 +470,7 @@
                       x="108.3125"
                       y="387.25977"
                       value="audience2"
-                      id="room-tspan1">Аудиторія №2</tspan></text>
+                      id="room-tspan2-1">Аудиторія №2</tspan></text>
                       <text
        xml:space="preserve"
        style="font-weight:bold;font-size:4.23333px;font-family:Roboto;-inkscape-font-specification:'Roboto Bold';writing-mode:lr-tb;direction:ltr;fill:#24221c;stroke-width:0.264583"
@@ -490,7 +482,7 @@
        inkscape:transform-center-y="-0.60061729"
        inkscape:label="aud4"><tspan
          sodipodi:role="line"
-         id="room-tspan5"
+         id="room-tspan1-1"
          value="audience1"
          style="stroke-width:0.264583"
          x="-71.500965"
@@ -523,6 +515,10 @@
 <script setup>
 import { ref, computed } from "vue";
 
+const base = import.meta.env.BASE_URL;
+const buildImgPaths = (folder, count) =>
+  Array.from({ length: count }, (_, i) => `${base}img/auditiry/${folder}/${i + 1}.jpg`);
+
 const selectedRoom = ref(null);
 const roomInfo = ref(null);
 
@@ -530,92 +526,92 @@ const classrooms = ref({
   audience1: {
     name: "Аудиторія №1",
     description: "Навчальна аудиторія першого поверху",
-    images: ["img/auditiry/1/1.jpg", "img/auditiry/1/2.jpg"],
+    images: buildImgPaths("1", 2),
   },
   audience2: {
     name: "Аудиторія №2",
     description: "Навчальна аудиторія першого поверху",
-    images: ["img/auditiry/2/1.jpg", "img/auditiry/2/2.jpg"],
+    images: buildImgPaths("2", 2),
   },
   audience3: {
     name: "Аудиторія №3",
     description: "Навчальна аудиторія другого поверху",
-    images: ["img/auditiry/3/1.jpg", "img/auditiry/3/2.jpg"],
+    images: buildImgPaths("3", 2),
   },
   audience4: {
     name: "Аудиторія №4",
     description: "Навчальна аудиторія другого поверху",
-    images: ["img/auditiry/4/1.jpg", "img/auditiry/4/2.jpg"],
+    images: buildImgPaths("4", 2),
   },
   audience5: {
     name: "Аудиторія №5",
     description: "Навчальна аудиторія другого поверху",
-    images: ["img/auditiry/5/1.jpg", "img/auditiry/5/2.jpg"],
+    images: buildImgPaths("5", 3),
   },
   audience6: {
     name: "Аудиторія №6",
     description: "Навчальна аудиторія другого поверху",
-    images: ["img/auditiry/6/1.jpg", "img/auditiry/6/2.jpg"],
+    images: buildImgPaths("6", 3),
   },
   audience7: {
     name: "Аудиторія №7",
     description: "Навчальна аудиторія другого поверху",
-    images: ["img/auditiry/7/1.jpg", "img/auditiry/7/2.jpg"],
+    images: buildImgPaths("7", 2),
   },
   audience8: {
     name: "Аудиторія №8",
     description: "Навчальна аудиторія другого поверху",
-    images: ["img/auditiry/8/1.jpg", "img/auditiry/8/2.jpg"],
+    images: buildImgPaths("8", 2),
   },
   audience9: {
     name: "Аудиторія №9",
     description: "Навчальна аудиторія другого поверху",
-    images: ["img/auditiry/9/1.jpg", "img/auditiry/9/2.jpg"],
+    images: buildImgPaths("9", 2),
   },
   audience10: {
     name: "Аудиторія №10",
     description: "Навчальна аудиторія другого поверху",
-    images: ["img/auditiry/10/1.jpg", "img/auditiry/10/2.jpg"],
+    images: buildImgPaths("10", 3),
   },
   audience11: {
     name: "Аудиторія №11",
     description: "Навчальна аудиторія третього поверху",
-    images: ["img/auditiry/11/1.jpg", "img/auditiry/11/2.jpg"],
+    images: buildImgPaths("11", 2),
   },
   audience11a: {
     name: "Аудиторія №11a",
     description: "Навчальна аудиторія третього поверху",
-    images: ["img/auditiry/11a/1.jpg", "img/auditiry/11a/2.jpg"],
+    images: buildImgPaths("11a", 3),
   },
   audience12: {
     name: "Аудиторія №12",
     description: "Навчальна аудиторія третього поверху",
-    images: ["img/auditiry/12/1.jpg", "img/auditiry/12/2.jpg"],
+    images: buildImgPaths("12", 8),
   },
   audience13: {
     name: "Аудиторія №13",
     description: "Навчальна аудиторія третього поверху",
-    images: ["img/auditiry/13/1.jpg", "img/auditiry/13/2.jpg"],
+    images: buildImgPaths("13", 2),
   },
   audience14: {
     name: "Аудиторія №14",
     description: "Навчальна аудиторія третього поверху",
-    images: ["img/auditiry/14/1.jpg", "img/auditiry/14/2.jpg"],
+    images: buildImgPaths("14", 2),
   },
   audience15: {
     name: "Аудиторія №15",
     description: "Навчальна аудиторія третього поверху",
-    images: ["img/auditiry/15/1.jpg", "img/auditiry/15/2.jpg"],
+    images: buildImgPaths("15", 2),
   },
   audience16: {
     name: "Аудиторія №16",
     description: "Навчальна аудиторія третього поверху",
-    images: ["img/auditiry/16/1.jpg", "img/auditiry/16/2.jpg"],
+    images: buildImgPaths("16", 3),
   },
   act: {
     name: "Актова зала",
     description: "Актова зала коледжу для урочистих подій та конференцій",
-    images: ["img/auditiry/act/1.jpg", "img/auditiry/act/2.jpg"],
+    images: buildImgPaths("act", 3),
   },
   conference: {
     name: "Конференц-зала",

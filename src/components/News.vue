@@ -100,7 +100,7 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { fetchWithCache, getCachedData } from "../utils/cache";
+import { fetchWithCache, getCachedData, getApiUrl } from "../utils/cache";
 
 const news = ref([]);
 const loading = ref(true);
@@ -124,21 +124,23 @@ const closeModal = () => {
   }, 250);
 };
 
+const NEWS_PATH = "/wp-json/wp/v2/news?_embed=true&per_page=6&order=desc";
+
 const fetchNews = async (forceRefresh = false) => {
+  const endpoint = getApiUrl(NEWS_PATH);
   try {
     loading.value = true;
     error.value = null;
 
     // Швидке завантаження з кешу
     if (!forceRefresh) {
-      const cached = getCachedData("https://ocsnau.net/wp-json/wp/v2/news?_embed=true&per_page=6&order=desc", true);
+      const cached = getCachedData(endpoint, true);
       if (cached && Array.isArray(cached) && cached.length > 0) {
         news.value = cached;
       }
     }
 
     // Запит з TTL 30 хвилин та автоматичним офлайн-кешем
-    const endpoint = `https://ocsnau.net/wp-json/wp/v2/news?_embed=true&per_page=6&order=desc`;
     const data = await fetchWithCache(endpoint, {}, 1000 * 60 * 30);
     if (Array.isArray(data)) {
       news.value = data;

@@ -329,7 +329,7 @@
               </template>
 
               <div v-else class="lesson-card__empty-state">
-                <span class="lesson-card__empty-text">Занять немає (вікно)</span>
+                <span class="lesson-card__empty-text">Занять немає</span>
               </div>
             </div>
           </article>
@@ -461,7 +461,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import * as XLSX from 'xlsx';
-import { getCachedData, setCachedData, fetchWithCache } from '../utils/cache';
+import { getCachedData, setCachedData, getApiUrl, fetchWithTimeout } from '../utils/cache';
 
 const emit = defineEmits(['open-info', 'open-main']);
 
@@ -481,7 +481,6 @@ const lessonsPerDay = 5;
 // --- Стан компонента ---
 const currentTime = ref(new Date());
 const scheduleData = ref([]);
-const teachersLinks = ref({});
 const replacements = ref([]);
 const groups = ref([]);
 
@@ -558,6 +557,31 @@ const availableGroups = computed(() => {
   return groups.value.filter(g => String(g).trim().startsWith(selectedCourse.value));
 });
 
+watch(selectedCourse, () => {
+  if (selectedGroup.value !== 'all' && !availableGroups.value.includes(selectedGroup.value)) {
+    selectedGroup.value = 'all';
+  }
+});
+
+const normalizeGroupName = (raw) => {
+  if (raw === null || raw === undefined) return '';
+  return String(raw)
+    .replace(/група/gi, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+};
+
+const cleanCellValue = (val) => {
+  if (val === null || val === undefined || val === 0) return '';
+  const str = String(val)
+    .replace(/"/g, "'")
+    .replace(/^,+|,+$/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (str === '0' || str === '0ʼ' || str === "0'") return '';
+  return str;
+};
+
 // Групи для відображення карток
 const displayGroups = computed(() => {
   return availableGroups.value.length > 0 ? availableGroups.value : groups.value;
@@ -570,10 +594,14 @@ const tableGroups = computed(() => {
 });
 
 // --- Допоміжні функції уроків ---
+const currentMinutesOfDay = computed(() =>
+  currentTime.value.getHours() * 60 + currentTime.value.getMinutes()
+);
+
 const isActiveLesson = (dayName, paraIndex) => {
   if (currentDayName.value !== dayName || isWeekend.value) return false;
 
-  const now = currentTime.value.getHours() * 60 + currentTime.value.getMinutes();
+  const now = currentMinutesOfDay.value;
   const slot = timeTab[paraIndex - 1];
   if (!slot) return false;
 
@@ -585,52 +613,74 @@ const isActiveLesson = (dayName, paraIndex) => {
   return now >= start && now <= end;
 };
 
-const getLesson = (dayName, para, groupName) => {
-  if (!scheduleData.value || scheduleData.value.length === 0 || !groupName) {
-    return { subject: '', teacher: '', isReplacement: false };
+const EMPTY_LESSON = Object.freeze({ subject: '', teacher: '', isReplacement: false });
+
+// Попередньо обчислена мапа уроків: перераховується лише при зміні scheduleData або replacements
+const lessonsMap = computed(() => {
+  const map = new Map();
+  if (!scheduleData.value || scheduleData.value.length === 0) {
+    return map;
   }
 
-  const dayIdx = daysInWeek.indexOf(dayName);
-  if (dayIdx < 1 || dayIdx > 5) {
-    return { subject: '', teacher: '', isReplacement: false };
-  }
-
-  const rowIndex = ((dayIdx - 1) * lessonsPerDay * 2) + ((para - 1) * 2) + 1;
   const headerRow = scheduleData.value[0] || [];
-  const colIndex = headerRow.indexOf(groupName);
 
-  if (colIndex === -1) {
-    return { subject: '', teacher: '', isReplacement: false };
+  for (let dayIdx = 1; dayIdx <= 5; dayIdx++) {
+    const dayName = daysInWeek[dayIdx];
+    for (let para = 1; para <= lessonsPerDay; para++) {
+      const rowIndex = ((dayIdx - 1) * lessonsPerDay * 2) + ((para - 1) * 2) + 1;
+      const subjRow = scheduleData.value[rowIndex] || [];
+      const teachRow = scheduleData.value[rowIndex + 1] || [];
+
+      for (let colIndex = 1; colIndex < headerRow.length; colIndex++) {
+        const groupName = headerRow[colIndex];
+        if (!groupName) continue;
+
+        let subject = cleanCellValue(subjRow[colIndex]);
+        let teacher = cleanCellValue(teachRow[colIndex]);
+        let isReplacement = false;
+
+        if (!subject && teacher) {
+          subject = teacher;
+          teacher = '';
+        }
+
+        if (subject.toLowerCase() === 'виховна година') {
+          subject = 'Виховна Година';
+          teacher = 'Куратор';
+        } else if (subject && teacher && subject.toLowerCase() === teacher.toLowerCase()) {
+          teacher = '';
+        }
+
+        const replacement = replacements.value.find(r =>
+          normalizeGroupName(r.group) === groupName &&
+          Number(r.para) === para &&
+          daysInWeek[r.day] === dayName
+        );
+
+        if (replacement) {
+          subject = replacement.discip || subject;
+          teacher = replacement.teacher || teacher;
+          isReplacement = true;
+        }
+
+        map.set(`${dayName}|${para}|${groupName}`, { subject, teacher, isReplacement });
+      }
+    }
   }
 
-  let subject = String(scheduleData.value[rowIndex]?.[colIndex] || '').trim();
-  let teacher = String(scheduleData.value[rowIndex + 1]?.[colIndex] || '').trim();
-  let isReplacement = false;
+  return map;
+});
 
-  const replacement = replacements.value.find(r =>
-    r.group === groupName &&
-    Number(r.para) === para &&
-    daysInWeek[r.day] === dayName
-  );
-
-  if (replacement) {
-    subject = replacement.discip || subject;
-    teacher = replacement.teacher || teacher;
-    isReplacement = true;
-  }
-
-  return { subject, teacher, isReplacement };
-};
-
-// URL з проксі для дев-сервера
-const getEndpointUrl = (path) => {
-  if (import.meta.env.DEV) {
-    return `/api-ocsnau${path}`;
-  }
-  return `https://ocsnau.net${path}`;
+const getLesson = (dayName, para, groupName) => {
+  if (!groupName) return EMPTY_LESSON;
+  return lessonsMap.value.get(`${dayName}|${para}|${groupName}`) || EMPTY_LESSON;
 };
 
 // --- Завантаження розкладу ---
+const excelPath = '/wp-content/uploads/2026/11/rozklad-i-semestr-2026-2027r.-sajt-new2.xls';
+const scheduleCacheKey = 'parsed_schedule_2026_sem1_new2';
+const groupsCacheKey = 'parsed_groups_2026_sem1_new2';
+
 const fetchData = async (forceRefresh = false) => {
   try {
     loading.value = true;
@@ -638,31 +688,22 @@ const fetchData = async (forceRefresh = false) => {
 
     // 1. Відновлення з локального кешу
     if (!forceRefresh) {
-      const cachedSchedule = getCachedData('parsed_schedule', true);
-      const cachedGroups = getCachedData('parsed_groups', true);
+      const cachedSchedule = getCachedData(scheduleCacheKey, true);
+      const cachedGroups = getCachedData(groupsCacheKey, true);
       if (cachedSchedule && cachedGroups && cachedGroups.length > 0) {
         scheduleData.value = cachedSchedule;
         groups.value = cachedGroups;
       }
     }
 
-    // 2. Викладачі з кешуванням
-    try {
-      const teachersUrl = getEndpointUrl('/shedule-data/data.json');
-      teachersLinks.value = await fetchWithCache(teachersUrl, {}, 1000 * 60 * 60 * 24);
-    } catch {
-      console.warn('[Schedule] Не вдалося оновити список викладачів');
-    }
-
-    // 3. Завантаження Excel файлу розкладу
-    const excelPath = '/wp-content/uploads/2026/02/rozklad-na_ii-semestr-2025-2026-n.r.-14.01-2.xls';
+    // 2. Завантаження Excel файлу розкладу
     let eResp;
     try {
-      eResp = await fetch(getEndpointUrl(excelPath));
+      eResp = await fetchWithTimeout(getApiUrl(excelPath));
     } catch {
       console.warn('[Schedule] Спроба через резервний проксі...');
       const fallbackUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent('https://ocsnau.net' + excelPath)}`;
-      eResp = await fetch(fallbackUrl);
+      eResp = await fetchWithTimeout(fallbackUrl);
     }
 
     if (!eResp || !eResp.ok) throw new Error('Не вдалося завантажити файл розкладу');
@@ -670,15 +711,18 @@ const fetchData = async (forceRefresh = false) => {
     const arrayBuffer = await eResp.arrayBuffer();
     const workbook = XLSX.read(arrayBuffer, { type: 'array' });
     const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-    const rawData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+    const rawData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 }).slice(0, 51);
 
     if (rawData && rawData.length > 0) {
+      rawData[0] = (rawData[0] || []).map((cell, idx) =>
+        idx === 0 ? cell : normalizeGroupName(cell)
+      );
       scheduleData.value = rawData;
       const parsedGroups = Array.from(new Set(rawData[0].slice(1).filter(Boolean)));
       groups.value = parsedGroups;
 
-      setCachedData('parsed_schedule', scheduleData.value, 1000 * 60 * 60 * 6);
-      setCachedData('parsed_groups', groups.value, 1000 * 60 * 60 * 6);
+      setCachedData(scheduleCacheKey, scheduleData.value, 1000 * 60 * 60 * 6);
+      setCachedData(groupsCacheKey, groups.value, 1000 * 60 * 60 * 6);
     }
   } catch (err) {
     if (scheduleData.value.length === 0) {
@@ -914,8 +958,6 @@ defineExpose({
   font-weight: 800;
   color: #166534;
   background-color: #ffffff;
-  border-radius: 24px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   border: 2px solid #86efac;
   border-radius: 14px;
   cursor: pointer;

@@ -29,7 +29,7 @@
         <div class="applicant-modal__content">
           <button class="applicant-modal__close-btn" @click="closeModal">&times;</button>
 
-          <component :is="activeComponent" v-if="activeComponent" />
+          <component :is="activeComponent" v-if="activeComponent" ref="activeComponentRef" />
 
           <div v-else class="applicant-modal__empty">
             <h2 class="applicant-modal__empty-title">
@@ -46,13 +46,16 @@
 </template>
 
 <script setup>
-import { ref, shallowRef } from "vue";
+import { ref, shallowRef, defineAsyncComponent } from "vue";
 import AbiturientMap from "./AbiturientMap.vue";
-import Speciality from "./Speciality.vue";
 import AdmissionDates from "./AdmissionDates.vue";
 
+const Speciality = defineAsyncComponent(() => import("./Speciality.vue"));
+
+const base = import.meta.env.BASE_URL;
 const isModalOpen = ref(false);
 const activeComponent = shallowRef(null);
+const activeComponentRef = ref(null);
 const currentTitle = ref("");
 
 const menuItemsAbit = ref([
@@ -61,21 +64,21 @@ const menuItemsAbit = ref([
     title: "Карта вступника",
     color: "#00a53f",
     component: AbiturientMap,
-    image: "img/route.png",
+    image: `${base}img/route.png`,
   },
   {
     id: 2,
     title: "Наші Спеціальності",
     color: "#00a53f",
     component: Speciality,
-    image: "img/specialty.png",
+    image: `${base}img/specialty.png`,
   },
   {
     id: 3,
     title: "Терміни кампанії",
     color: "#00a53f",
     component: AdmissionDates,
-    image: "img/derjavnezamovlena.png",
+    image: `${base}img/derjavnezamovlena.png`,
   },
 ]);
 
@@ -86,6 +89,9 @@ const openModal = (item) => {
 };
 
 const closeModal = () => {
+  if (activeComponentRef.value?.closeModal) {
+    activeComponentRef.value.closeModal();
+  }
   isModalOpen.value = false;
   activeComponent.value = null;
 };

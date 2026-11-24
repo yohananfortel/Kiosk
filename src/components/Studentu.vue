@@ -46,10 +46,12 @@
 </template>
 
 <script setup>
-import { ref, shallowRef } from "vue";
-import BuildSchema from "./BuildSchema.vue";
-import Schedule from "./Schedule.vue"; // Оновлений імпорт з правильним написанням
+import { ref, shallowRef, defineAsyncComponent } from "vue";
+import Schedule from "./Schedule.vue";
 
+const BuildSchema = defineAsyncComponent(() => import("./BuildSchema.vue"));
+
+const base = import.meta.env.BASE_URL;
 const isModalOpen = ref(false);
 const activeComponent = shallowRef(null);
 const currentTitle = ref("");
@@ -60,14 +62,14 @@ const menuItemsStudent = ref([
     title: "Карта аудиторій",
     color: "#00a53f",
     component: BuildSchema,
-    image: "img/route.png",
+    image: `${base}img/route.png`,
   },
   {
     id: 2,
     title: "Розклад занять",
     color: "#00a53f",
     component: Schedule,
-    image: "img/roskladzanat.png",
+    image: `${base}img/roskladzanat.png`,
   },
 ]);
 

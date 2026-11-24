@@ -12,6 +12,38 @@ interface CacheEntry<T> {
 
 const CACHE_PREFIX = "kiosk_cache_";
 const DEFAULT_TTL = 1000 * 60 * 60; // 1 година за замовчуванням
+const DEFAULT_TIMEOUT_MS = 8000; // 8 секунд таймаут мережевого запиту
+
+/**
+ * Формує URL до API коледжу з урахуванням локального Vite-проксі в режимі розробки.
+ */
+export function getApiUrl(path: string): string {
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  if (import.meta.env.DEV) {
+    return `/api-ocsnau${normalizedPath}`;
+  }
+  return `https://ocsnau.net${normalizedPath}`;
+}
+
+/**
+ * Виконує fetch із таймаутом AbortController.
+ */
+export async function fetchWithTimeout(
+  url: string,
+  options: RequestInit = {},
+  timeoutMs = DEFAULT_TIMEOUT_MS,
+): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 /**
  * Отримати закешовані дані за ключем.
@@ -69,7 +101,7 @@ export async function fetchWithCache<T>(
   const cacheKey = url;
 
   try {
-    const response = await fetch(url, options);
+    const response = await fetchWithTimeout(url, options);
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }

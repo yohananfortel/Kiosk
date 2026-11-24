@@ -40,6 +40,10 @@ onMounted(() => {
 onUnmounted(() => {
   clearInterval(timer);
 });
+
+const handleLogoError = (e) => {
+  e.target.src = `${import.meta.env.BASE_URL}img/college.png`;
+};
 </script>
 
 <template>
@@ -49,6 +53,7 @@ onUnmounted(() => {
         src="https://ocsnau.net/wp-content/themes/ocsnau_v3/assets/images/logo_ukr_color.png?v=2"
         alt="Емблема коледжу"
         class="main-page__logo"
+        @error="handleLogoError"
       />
     </div>
     

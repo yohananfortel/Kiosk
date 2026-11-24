@@ -101,7 +101,7 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { fetchWithCache, getCachedData } from "../utils/cache";
+import { fetchWithCache, getCachedData, getApiUrl } from "../utils/cache";
 
 const selectedSpecialty = ref(null);
 const specialties = ref([]);
@@ -109,7 +109,7 @@ const loading = ref(true);
 const error = ref(null);
 
 const fetchSpecialties = async (forceRefresh = false) => {
-  const url = "https://ocsnau.net/wp-json/spa/v1/specialties";
+  const url = getApiUrl("/wp-json/spa/v1/specialties");
   try {
     loading.value = true;
     error.value = null;
@@ -145,6 +145,10 @@ const closeModal = () => {
 
 onMounted(() => {
   fetchSpecialties();
+});
+
+defineExpose({
+  closeModal,
 });
 </script>
 

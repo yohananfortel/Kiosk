@@ -9,7 +9,6 @@ const totalPages = 3;
 
 const scheduleRef = ref(null);
 const welcomeRef = ref(null);
-const campaignRef = ref(null);
 
 const idleTimeout = ref(null);
 const IDLE_TIME = 25000; // 25 секунд бездіяльності до появи вікна
@@ -30,13 +29,8 @@ const resetIdleTimer = () => {
 };
 
 const triggerInactivityModal = () => {
-  // На першій сторінці (розклад) тихо скидаємо фільтри, без вікна
+  // На головному екрані-заставці (сторінка 1) модальне вікно не потрібне
   if (currentPage.value === 1) {
-    if (scheduleRef.value?.resetToDefault) {
-      scheduleRef.value.resetToDefault();
-    }
-    // І починаємо відлік 25с знову
-    resetIdleTimer();
     return;
   }
 
@@ -60,7 +54,6 @@ const handleInactivityTimeout = () => {
   currentPage.value = 1;
   if (welcomeRef.value?.closeModal) welcomeRef.value.closeModal();
   if (scheduleRef.value?.resetToDefault) scheduleRef.value.resetToDefault();
-  resetIdleTimer();
 };
 
 const confirmPresence = () => {
@@ -82,7 +75,6 @@ const handleTouchStart = (e) => {
   if (showInactivityModal.value) return;
   touchStartX.value = e.changedTouches[0].screenX;
   touchStartY.value = e.changedTouches[0].screenY;
-  resetIdleTimer();
 };
 
 const handleTouchEnd = (e) => {
@@ -124,9 +116,7 @@ const blockAllLinks = (e) => {
 };
 
 onMounted(() => {
-  resetIdleTimer();
   window.addEventListener("pointerdown", resetIdleTimer, { passive: true });
-  window.addEventListener("touchstart", resetIdleTimer, { passive: true });
   window.addEventListener("click", blockAllLinks, { capture: true });
   window.addEventListener("auxclick", blockAllLinks, { capture: true });
 });
@@ -135,7 +125,6 @@ onUnmounted(() => {
   if (idleTimeout.value) clearTimeout(idleTimeout.value);
   if (countdownInterval) clearInterval(countdownInterval);
   window.removeEventListener("pointerdown", resetIdleTimer);
-  window.removeEventListener("touchstart", resetIdleTimer);
   window.removeEventListener("click", blockAllLinks, { capture: true });
   window.removeEventListener("auxclick", blockAllLinks, { capture: true });
 });

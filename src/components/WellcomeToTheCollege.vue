@@ -29,7 +29,7 @@
       >
         <div class="dashboard-modal__content">
           <button class="dashboard-modal__close-btn" @click="closeModal">&times;</button>
-          <component :is="activeComponent" />
+          <component :is="activeComponent" ref="activeComponentRef" />
         </div>
       </div>
     </Transition>
@@ -37,57 +37,60 @@
 </template>
 
 <script setup>
-import { ref, shallowRef } from "vue";
+import { ref, shallowRef, defineAsyncComponent } from "vue";
 import Abiturientu from "./Abiturientu.vue";
 import Studentu from "./Studentu.vue";
-import Shelter from "./Shelter.vue";
 import Contacts from "./Contacts.vue";
 import Dormitory from "./Dormitory.vue";
-import News from "./News.vue";
 
+const Shelter = defineAsyncComponent(() => import("./Shelter.vue"));
+const News = defineAsyncComponent(() => import("./News.vue"));
+
+const base = import.meta.env.BASE_URL;
 const isModalOpen = ref(false);
 const activeComponent = shallowRef(null);
+const activeComponentRef = ref(null);
 
 const menuItems = ref([
   {
     id: 1,
     title: "Абітурієнту",
-    image: "img/abiturient.png",
+    image: `${base}img/abiturient.png`,
     color: "#00a53f",
     component: Abiturientu,
   },
   {
     id: 2,
     title: "Студенту",
-    image: "img/student.png",
+    image: `${base}img/student.png`,
     color: "#00a53f",
     component: Studentu,
   },
   {
     id: 3,
     title: "Контакти",
-    image: "img/telephone-call.png",
+    image: `${base}img/telephone-call.png`,
     color: "#00a53f",
     component: Contacts,
   },
   {
     id: 4,
     title: "Гуртожиток",
-    image: "img/hostel.png",
+    image: `${base}img/hostel.png`,
     color: "#00a53f",
     component: Dormitory,
   },
   {
     id: 5,
     title: "Укриття",
-    image: "img/location.png",
+    image: `${base}img/location.png`,
     color: "#00a53f",
     component: Shelter,
   },
   {
     id: 6,
     title: "Новини",
-    image: "img/news.png",
+    image: `${base}img/news.png`,
     color: "#00a53f",
     component: News,
   },
@@ -99,6 +102,9 @@ const openModal = (item) => {
 };
 
 const closeModal = () => {
+  if (activeComponentRef.value?.closeModal) {
+    activeComponentRef.value.closeModal();
+  }
   isModalOpen.value = false;
   activeComponent.value = null;
 };
