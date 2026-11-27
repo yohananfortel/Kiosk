@@ -116,6 +116,8 @@ const blockAllLinks = (e) => {
 };
 
 onMounted(() => {
+  document.documentElement.setAttribute("translate", "no");
+  document.documentElement.classList.add("notranslate");
   window.addEventListener("pointerdown", resetIdleTimer, { passive: true });
   window.addEventListener("click", blockAllLinks, { capture: true });
   window.addEventListener("auxclick", blockAllLinks, { capture: true });
@@ -133,7 +135,7 @@ onUnmounted(() => {
 <template>
   <div class="kiosk-bar"></div>
 
-  <div class="kiosk" @touchstart="handleTouchStart" @touchend="handleTouchEnd">
+  <div class="kiosk notranslate" translate="no" @touchstart="handleTouchStart" @touchend="handleTouchEnd">
     <header v-if="currentPage !== 1"
       class="kiosk__header"
       :class="{ 'kiosk__header--compact': currentPage !== 3 }"

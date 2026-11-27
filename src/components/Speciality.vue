@@ -55,7 +55,8 @@
       <Transition name="fade">
         <div
           v-if="selectedSpecialty"
-          class="specialty-modal__overlay"
+          class="specialty-modal__overlay notranslate"
+          translate="no"
           @click.self="closeModal"
         >
           <div class="specialty-modal__content">
